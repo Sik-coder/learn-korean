@@ -139,7 +139,43 @@
   .da-ghost{background:transparent; color:var(--accent); border:1px solid var(--accent-soft)}
   .da-text{background:none; color:var(--muted); font-size:13.5px; font-weight:600; padding:6px}
 
-  .modal{position:fixed; inset:0; background:rgba(30,30,50,.5); display:none; align-items:flex-end; justify-content:center; z-index:60}
+  /* quiz */
+  #quiz{flex:1; display:flex; flex-direction:column}
+  .quiz-stage{flex:1; display:flex; align-items:center; justify-content:center; padding:18px 2px}
+  .qcard{width:100%; max-width:460px; background:var(--card); border:1px solid var(--line); border-radius:22px; box-shadow:var(--shadow); padding:26px 22px 22px; text-align:center}
+  .qtype{font-family:var(--eng); font-size:11px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--faint)}
+  .qprompt{font-family:var(--kor); font-weight:900; color:var(--ink); margin:14px 0 6px; line-height:1.25; font-size:clamp(30px,8vw,44px)}
+  .qprompt.small{font-size:clamp(20px,5.2vw,26px); font-weight:700}
+  .qprompt.sentence{font-weight:500; font-size:clamp(18px,4.8vw,23px)}
+  .qprompt .blank{color:var(--accent); border-bottom:3px solid var(--accent-soft); padding:0 18px; margin:0 2px}
+  .qlisten{display:inline-flex; align-items:center; gap:7px; background:var(--accent-soft); color:var(--accent-dark); font-family:var(--eng); font-weight:600; font-size:13px; padding:10px 18px; border-radius:99px; margin:6px 0 4px}
+  .qlisten svg{width:15px; height:15px}
+  .qlisten.big{font-size:15px; padding:14px 24px}
+  .qopts{display:flex; flex-direction:column; gap:10px; margin-top:18px}
+  .qopt{display:block; width:100%; text-align:left; background:var(--paper); border:1.5px solid var(--line); border-radius:14px; padding:15px 16px; font-size:15px; font-weight:600; color:var(--ink); transition:transform .08s ease, border-color .15s, background .15s}
+  .qopt .kr{font-family:var(--kor)}
+  .qopt:hover{border-color:var(--accent-soft)}
+  .qopt:active{transform:scale(.99)}
+  .qopt.correct{background:var(--green-soft); border-color:#A9D3B4; color:#256137}
+  .qopt.wrong{background:#FBE9E9; border-color:#F0B9B9; color:#A33}
+  .qopt.dim{opacity:.5}
+  .qopt:disabled{cursor:default}
+  .qfeedback{height:22px; margin-top:14px; font-size:14px; font-weight:700}
+  .qfeedback.ok{color:var(--green)}
+  .qfeedback.no{color:#C0504D}
+
+  #quizdone{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:28px}
+  #quizdone .seal{width:90px; height:90px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:40px; margin-bottom:18px; background:var(--accent-soft); border:3px solid var(--accent)}
+  #quizdone .bigscore{font-family:var(--eng); font-size:40px; font-weight:700; letter-spacing:-.02em}
+  #quizdone .pctline{font-family:var(--eng); font-size:16px; font-weight:600; color:var(--accent); margin-top:2px}
+  #quizdone .msg{color:var(--muted); font-size:14px; margin-top:8px}
+  .wrongbox{width:100%; max-width:340px; margin:20px 0 4px; text-align:left}
+  .wrongbox h4{font-size:12px; font-weight:700; color:var(--faint); letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px; text-align:center}
+  .wrongitem{display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:10px 13px; margin-bottom:7px}
+  .wrongitem .w{font-family:var(--kor); font-weight:700; font-size:15px}
+  .wrongitem .mn{font-size:12.5px; color:var(--muted); text-align:right}
+
+
   .modal.show{display:flex}
   .sheet{position:relative; background:var(--card); width:100%; max-width:560px; border-radius:22px 22px 0 0; padding:24px 20px calc(26px + env(safe-area-inset-bottom)); box-shadow:0 -12px 44px rgba(0,0,0,.25); max-height:90vh; max-height:90dvh; overflow:auto; animation:slideup .28s ease}
   @keyframes slideup{from{transform:translateY(40px); opacity:.5}to{transform:translateY(0); opacity:1}}
@@ -227,8 +263,46 @@
     <p><b id="doneKnown">0</b> <span id="doneKnownLbl">learned this round</span></p>
     <p id="doneLearnLine" class="hidden"><b id="doneLearn" style="color:var(--green)">0</b> <span id="doneLearnLbl">to review</span></p>
     <div class="done-actions">
+      <button class="da-primary" id="doneQuiz">Take the quiz</button>
       <button class="da-ghost" id="doneReview">Review again</button>
       <button class="da-text" id="doneHome">Back to menu</button>
+    </div>
+  </div>
+
+  <div id="quiz" class="hidden">
+    <div class="study-top">
+      <button class="back" id="quizBack">← <span id="quizBackLbl">Menu</span></button>
+      <span class="where" id="quizWhere">Quiz</span>
+      <div class="counts"><span class="k"><span id="quizProg">1 / 20</span></span></div>
+    </div>
+    <div class="progress-mini"><i id="quizBar"></i></div>
+    <div class="quiz-stage">
+      <div class="qcard">
+        <span class="qtype" id="qType">Choose the meaning</span>
+        <div class="qprompt" id="qPrompt">밥</div>
+        <button class="qlisten" id="qListenBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a4.5 4.5 0 0 1 0 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span id="qListenLbl">Listen</span>
+        </button>
+        <div class="qopts" id="qOpts"></div>
+        <div class="qfeedback" id="qFeedback"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="quizdone" class="hidden">
+    <div class="seal" id="qSeal">🎉</div>
+    <div class="bigscore" id="qBigScore">18 / 20</div>
+    <div class="pctline" id="qPct">90%</div>
+    <div class="msg" id="qMsg">Great job!</div>
+    <div class="wrongbox hidden" id="qWrongBox">
+      <h4 id="qWrongTitle">Words to review</h4>
+      <div id="qWrongList"></div>
+    </div>
+    <div class="done-actions">
+      <button class="da-ghost" id="qReviewWrong">Review wrong words</button>
+      <button class="da-primary" id="qRetry">Retry quiz</button>
+      <button class="da-text" id="qHome">Back to menu</button>
     </div>
   </div>
 
@@ -1109,12 +1183,14 @@ const T = {
        again:"Again", known:"Got it", letter:"LETTER", word:"WORD", done:"Done!",
        learnedRound:"learned this round", toReview:"to review", reviewAgain:"Review again",
        backMenu:"Back to menu", letters:"Letters", words:"Words", foot:"Tip: add to your home screen to use full-screen · Progress saves automatically on this device",
-       soon:"Coming soon — content is being added step by step.", consonant:"Consonant", vowel:"Vowel", example:"Example" },
+       soon:"Coming soon — content is being added step by step.", consonant:"Consonant", vowel:"Vowel", example:"Example",
+       takeQuiz:"Take the quiz", skipQuiz:"Skip", quiz:"Quiz", qMeaning:"Choose the meaning", qWord:"Choose the word", qListen:"Listen and choose", qFill:"Fill in the blank", qListenBtn:"Tap to listen", correct:"Correct!", wrong:"Not quite", score:"Score", perfect:"Perfect score!", great:"Great job!", keepGoing:"Keep practicing!", reviewWrong:"Review wrong words", retryQuiz:"Retry quiz", wrongList:"Words to review", allCorrect:"You got them all right!" },
   es:{ back:"Atrás", listen:"Escuchar", listenWord:"Palabra", listenEx:"Frase", flip:"toca para girar",
        again:"Otra vez", known:"Lo sé", letter:"LETRA", word:"PALABRA", done:"¡Listo!",
        learnedRound:"aprendidas esta ronda", toReview:"para repasar", reviewAgain:"Repasar de nuevo",
        backMenu:"Volver al menú", letters:"Letras", words:"Palabras", foot:"Consejo: añade a tu pantalla de inicio para pantalla completa · El progreso se guarda en este dispositivo",
-       soon:"Próximamente — el contenido se añade poco a poco.", consonant:"Consonante", vowel:"Vocal", example:"Ejemplo" },
+       soon:"Próximamente — el contenido se añade poco a poco.", consonant:"Consonante", vowel:"Vocal", example:"Ejemplo",
+       takeQuiz:"Hacer el examen", skipQuiz:"Saltar", quiz:"Examen", qMeaning:"Elige el significado", qWord:"Elige la palabra", qListen:"Escucha y elige", qFill:"Completa el espacio", qListenBtn:"Toca para escuchar", correct:"¡Correcto!", wrong:"Casi", score:"Puntuación", perfect:"¡Puntuación perfecta!", great:"¡Muy bien!", keepGoing:"¡Sigue practicando!", reviewWrong:"Repasar errores", retryQuiz:"Repetir examen", wrongList:"Palabras para repasar", allCorrect:"¡Las acertaste todas!" },
 };
 
 let state = { status:{}, lang:"en" };
@@ -1122,9 +1198,9 @@ let mem=null;
 function lsGet(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
 function lsSet(k,v){ try{localStorage.setItem(k,v);return true;}catch(e){return false;} }
 function lsDel(k){ try{localStorage.removeItem(k);}catch(e){} }
-function loadState(){ const f={status:{},lang:"en"}; const raw=lsGet(STORAGE_KEY); if(raw){try{return Object.assign(f,JSON.parse(raw));}catch(e){}} if(mem)return Object.assign(f,mem); return f; }
+function loadState(){ const f={status:{},lang:"en",scores:{}}; const raw=lsGet(STORAGE_KEY); if(raw){try{return Object.assign(f,JSON.parse(raw));}catch(e){}} if(mem)return Object.assign(f,mem); return f; }
 function saveState(){ const v=JSON.stringify(state); mem=JSON.parse(v); lsSet(STORAGE_KEY,v); }
-function clearState(){ state={status:{},lang:state.lang||"en"}; mem=null; lsDel(STORAGE_KEY); }
+function clearState(){ state={status:{},lang:state.lang||"en",scores:{}}; mem=null; lsDel(STORAGE_KEY); }
 
 const $ = id=>document.getElementById(id);
 let curLev="beginner", session=null, flipped=false;
@@ -1154,11 +1230,12 @@ function renderHome(){
   mods.forEach(m=>{
     const total=m.cards.length, k=m.cards.filter(known).length;
     const el=document.createElement("button"); el.className="mod";
-    const title=state.lang==="en"?m.titleEn:m.titleEn; // keep English title, show Korean subtitle
     const desc=state.lang==="en"?m.descEn:m.descEs;
+    const sc=(state.scores&&state.scores[m.id]!=null)?state.scores[m.id]:null;
+    const scoreHtml = sc!=null ? `<span class="mprog" style="color:#C9962E">★ ${sc}</span>` : "";
     el.innerHTML=`<span class="mi kr">${m.icon}</span>
       <span class="mtext"><h3>${m.titleEn} <span class="kr" style="color:var(--muted);font-weight:500;font-size:13px">${m.titleKr}</span></h3><p>${desc}</p></span>
-      <span class="mprog">${k}/${total}</span><span class="arrow">→</span>`;
+      ${scoreHtml}<span class="mprog">${k}/${total}</span><span class="arrow">→</span>`;
     el.addEventListener("click",()=>startModule(m));
     wrap.appendChild(el);
   });
@@ -1173,7 +1250,14 @@ function startModule(m, reviewOnly){
   $("whereLabel").textContent = m.type==="jamo" ? L().letters : (state.lang==="en" ? m.titleEn : m.titleKr);
   renderCard();
 }
-function show(s){ ["home","study","done"].forEach(x=>$(x).classList.toggle("hidden", x!==s)); window.scrollTo(0,0); }
+function startCardList(m, idxList){
+  if(!idxList || !idxList.length) return;
+  session={ mod:m, order:idxList.slice(), pos:0, isReview:true };
+  show("study");
+  $("whereLabel").textContent = state.lang==="en" ? m.titleEn : m.titleKr;
+  renderCard();
+}
+function show(s){ ["home","study","done","quiz","quizdone"].forEach(x=>$(x).classList.toggle("hidden", x!==s)); window.scrollTo(0,0); }
 
 function renderCard(){
   const m=session.mod, idxs=session.order;
@@ -1238,6 +1322,109 @@ function finish(){
   else $("doneLearnLine").classList.add("hidden");
   $("doneReview").textContent=L().reviewAgain; $("doneHome").textContent=L().backMenu;
   $("doneReview").classList.toggle("hidden", ln===0);
+  const qb=$("doneQuiz");
+  if(m.type==="word" && m.cards.length>=4){ qb.classList.remove("hidden"); qb.textContent=L().takeQuiz; qb._mod=m; }
+  else qb.classList.add("hidden");
+}
+
+/* ===== QUIZ ENGINE ===== */
+const QUIZ_N = 20;
+let quiz = null;
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function meaningOf(c){ return state.lang==="en"?c.en:c.es; }
+function startQuiz(mod){
+  const cards=mod.cards;
+  const n=Math.min(QUIZ_N, cards.length);
+  const order=shuffle(cards.map((_,i)=>i)).slice(0,n);
+  const types=["meaning","word","listen","fill"];
+  const questions=order.map((ci,qi)=>{
+    const c=cards[ci];
+    let type=types[qi%4];
+    if(type==="fill" && (!c.ex || c.ex.indexOf(c.ko)<0)) type="meaning";
+    return makeQuestion(mod, ci, type);
+  });
+  quiz={ mod, questions, pos:0, correct:0, wrong:[] };
+  show("quiz"); $("quizWhere").textContent=L().quiz; $("quizBackLbl").textContent=L().backMenu;
+  renderQuestion();
+}
+function makeQuestion(mod, ci, type){
+  const cards=mod.cards, c=cards[ci];
+  const others=cards.map((_,i)=>i).filter(i=>i!==ci);
+  function distinctVals(valFn, correctVal, k){
+    const pool=shuffle(others).map(i=>valFn(cards[i])).filter(v=>v && v!==correctVal);
+    const seen={}, out=[];
+    for(const v of pool){ if(!seen[v]){ seen[v]=1; out.push(v); } if(out.length>=k) break; }
+    return out;
+  }
+  let q={ type, cardIndex:ci, ko:c.ko };
+  if(type==="word" || type==="fill"){
+    const correct=c.ko;
+    const opts=shuffle([correct, ...distinctVals(x=>x.ko, correct, 3)]);
+    q.optKind="ko"; q.options=opts; q.answer=opts.indexOf(correct);
+    if(type==="fill"){ q.prompt=c.ex.split(c.ko).join('<span class="blank"></span>'); q.promptClass="sentence"; }
+    else { q.prompt=meaningOf(c); q.promptClass="small"; }
+  } else { // meaning or listen → options are meanings
+    const correct=meaningOf(c);
+    const opts=shuffle([correct, ...distinctVals(x=>meaningOf(x), correct, 3)]);
+    q.optKind="mean"; q.options=opts; q.answer=opts.indexOf(correct);
+    if(type==="listen"){ q.prompt=""; q.audio=c.ko; q.bigListen=true; }
+    else { q.prompt=c.ko; q.promptClass=""; q.audio=c.ko; }
+  }
+  return q;
+}
+function renderQuestion(){
+  const q=quiz.questions[quiz.pos];
+  $("quizProg").textContent=`${quiz.pos+1} / ${quiz.questions.length}`;
+  $("quizBar").style.width=(quiz.pos/quiz.questions.length*100)+"%";
+  const typeLbl={meaning:L().qMeaning, word:L().qWord, listen:L().qListen, fill:L().qFill}[q.type];
+  $("qType").textContent=typeLbl;
+  const pe=$("qPrompt");
+  if(q.type==="listen"){ pe.classList.add("hidden"); }
+  else { pe.classList.remove("hidden"); pe.className="qprompt "+(q.promptClass||""); pe.innerHTML=q.prompt; }
+  const lb=$("qListenBtn");
+  if(q.audio){ lb.classList.remove("hidden"); lb.classList.toggle("big", !!q.bigListen); $("qListenLbl").textContent=q.bigListen?L().qListenBtn:L().listen; }
+  else lb.classList.add("hidden");
+  $("qFeedback").textContent=""; $("qFeedback").className="qfeedback";
+  const box=$("qOpts"); box.innerHTML="";
+  q.options.forEach((opt,i)=>{
+    const b=document.createElement("button"); b.className="qopt"+(q.optKind==="ko"?" kr":"");
+    b.innerHTML=q.optKind==="ko"?('<span class="kr">'+opt+'</span>'):opt;
+    b.addEventListener("click",()=>answerQuestion(i,b));
+    box.appendChild(b);
+  });
+  if(q.audio && q.bigListen) setTimeout(()=>speak(q.audio,null),250);
+}
+function answerQuestion(i, btn){
+  const q=quiz.questions[quiz.pos];
+  if(q._answered) return; q._answered=true;
+  const opts=[...$("qOpts").children];
+  opts.forEach(o=>o.disabled=true);
+  const ok=(i===q.answer);
+  if(ok){ quiz.correct++; btn.classList.add("correct"); $("qFeedback").textContent=L().correct; $("qFeedback").className="qfeedback ok"; }
+  else { btn.classList.add("wrong"); opts[q.answer].classList.add("correct"); quiz.wrong.push(q.cardIndex); $("qFeedback").textContent=L().wrong; $("qFeedback").className="qfeedback no";
+    state.status[keyOf(quiz.mod.cards[q.cardIndex])]="learning"; }
+  opts.forEach((o,idx)=>{ if(idx!==i && idx!==q.answer) o.classList.add("dim"); });
+  setTimeout(()=>{ quiz.pos++; if(quiz.pos>=quiz.questions.length) finishQuiz(); else renderQuestion(); }, ok?700:1100);
+}
+function finishQuiz(){
+  const total=quiz.questions.length, correct=quiz.correct, pct=Math.round(correct/total*100);
+  if(!state.scores) state.scores={};
+  const prev=state.scores[quiz.mod.id]||0; if(pct>prev) state.scores[quiz.mod.id]=pct;
+  saveState();
+  show("quizdone");
+  $("qBigScore").textContent=`${correct} / ${total}`;
+  $("qPct").textContent=pct+"%";
+  $("qSeal").textContent = pct===100?"🏆":(pct>=70?"🎉":"💪");
+  $("qMsg").textContent = pct===100?L().perfect:(pct>=70?L().great:L().keepGoing);
+  const wrongIdx=[...new Set(quiz.wrong)];
+  const box=$("qWrongBox"), list=$("qWrongList");
+  if(wrongIdx.length){ box.classList.remove("hidden"); $("qWrongTitle").textContent=L().wrongList; list.innerHTML="";
+    wrongIdx.forEach(ci=>{ const c=quiz.mod.cards[ci]; const el=document.createElement("div"); el.className="wrongitem";
+      el.innerHTML='<span class="w">'+c.ko+'</span><span class="mn">'+meaningOf(c)+'</span>'; list.appendChild(el); });
+    $("qReviewWrong").classList.remove("hidden"); $("qReviewWrong").textContent=L().reviewWrong;
+  } else { box.classList.add("hidden"); $("qReviewWrong").classList.add("hidden"); }
+  $("qRetry").textContent=L().retryQuiz; $("qHome").textContent=L().backMenu;
+  quiz._wrongIdx=wrongIdx;
 }
 
 // ---- events ----
@@ -1250,6 +1437,12 @@ $("btnAgain").addEventListener("click",()=>mark("learning"));
 $("btnKnown").addEventListener("click",()=>mark("known"));
 $("doneReview").addEventListener("click",()=>startModule(session.mod,true));
 $("doneHome").addEventListener("click",()=>{ renderHome(); show("home"); });
+$("doneQuiz").addEventListener("click",()=>{ if($("doneQuiz")._mod) startQuiz($("doneQuiz")._mod); });
+$("qListenBtn").addEventListener("click",()=>{ const q=quiz&&quiz.questions[quiz.pos]; if(q&&q.audio) speak(q.audio,$("qListenBtn")); });
+$("quizBack").addEventListener("click",()=>{ renderHome(); show("home"); });
+$("qHome").addEventListener("click",()=>{ renderHome(); show("home"); });
+$("qRetry").addEventListener("click",()=>{ if(quiz&&quiz.mod) startQuiz(quiz.mod); });
+$("qReviewWrong").addEventListener("click",()=>{ if(quiz&&quiz._wrongIdx&&quiz._wrongIdx.length) startCardList(quiz.mod, quiz._wrongIdx); });
 document.addEventListener("keydown",e=>{
   if($("study").classList.contains("hidden"))return;
   if(e.code==="Space"||e.code==="Enter"){ e.preventDefault(); flip(); }
@@ -1264,13 +1457,13 @@ $("backupBtn").addEventListener("click",()=>{ $("importText").value=""; $("backu
 $("backupClose").addEventListener("click",()=>$("backupModal").classList.remove("show"));
 $("backupModal").addEventListener("click",e=>{ if(e.target.id==="backupModal") $("backupModal").classList.remove("show"); });
 $("exportBtn").addEventListener("click",()=>{ const p=JSON.stringify({app:STORAGE_KEY,v:1,data:state}); $("backupText").value=p; _dl("korean-progress.json",p); try{navigator.clipboard.writeText(p);}catch(e){} });
-function importProgress(text){ let o; try{o=JSON.parse(text);}catch(e){ alert("Invalid format."); return; } const d=(o&&o.data)?o.data:o; if(!d||typeof d!=="object"||!d.status){ alert("No progress data found."); return; } state=Object.assign({status:{},lang:state.lang},d); saveState(); [...$("langTog").children].forEach(x=>x.classList.toggle("on",x.dataset.lang===state.lang)); renderHome(); show("home"); $("backupModal").classList.remove("show"); alert("Imported! Learned: "+Object.values(state.status).filter(s=>s==="known").length); }
+function importProgress(text){ let o; try{o=JSON.parse(text);}catch(e){ alert("Invalid format."); return; } const d=(o&&o.data)?o.data:o; if(!d||typeof d!=="object"||!d.status){ alert("No progress data found."); return; } state=Object.assign({status:{},lang:state.lang,scores:{}},d); saveState(); [...$("langTog").children].forEach(x=>x.classList.toggle("on",x.dataset.lang===state.lang)); renderHome(); show("home"); $("backupModal").classList.remove("show"); alert("Imported! Learned: "+Object.values(state.status).filter(s=>s==="known").length); }
 $("importBtn").addEventListener("click",()=>{ const t=$("importText").value.trim(); if(t)importProgress(t); else alert("Paste a code first."); });
 $("importFile").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>importProgress(String(r.result)); r.readAsText(f); });
 $("modalReset").addEventListener("click",()=>{ if(confirm("Reset all progress on this device?")){ clearState(); renderHome(); show("home"); $("backupModal").classList.remove("show"); } });
 
 // ---- init ----
-(function init(){ state=loadState(); [...$("langTog").children].forEach(x=>x.classList.toggle("on",x.dataset.lang===state.lang)); renderHome(); })();
+(function init(){ state=loadState(); if(!state.scores) state.scores={}; [...$("langTog").children].forEach(x=>x.classList.toggle("on",x.dataset.lang===state.lang)); renderHome(); })();
 </script>
 </body>
 </html>
