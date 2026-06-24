@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Learn Korean">
+<meta name="theme-color" content="#4654C0">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Learn%20Korean%22%2C%22short_name%22%3A%22Korean%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22portrait%22%2C%22background_color%22%3A%22%23F4F4FB%22%2C%22theme_color%22%3A%22%234654C0%22%7D">
+<title>Learn Korean · 한국어 배우기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#E9E9F7; --bg2:#F4F4FB;
+    --card:#FFFFFF; --paper:#FBFBFF;
+    --ink:#23233A; --muted:#7B7B92; --faint:#ABABBE;
+    --accent:#4654C0; --accent-dark:#37429C; --accent-soft:#E8E9FA;
+    --green:#3F7A55; --green-soft:#E4EFE6;
+    --hl:#FBE7A2;
+    --line:#E5E5F0; --line2:#EFEFF7;
+    --shadow:0 18px 40px -18px rgba(40,40,80,.35);
+    --eng:'Space Grotesk', system-ui, sans-serif;
+    --kor:'Noto Sans KR', system-ui, sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{height:100%}
+  body{font-family:var(--eng); color:var(--ink); background:linear-gradient(160deg,var(--bg1),var(--bg2)); min-height:100vh; min-height:100dvh; -webkit-font-smoothing:antialiased; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+  .wrap{max-width:560px; margin:0 auto; padding:22px 18px 48px; min-height:100vh; min-height:100dvh; display:flex; flex-direction:column}
+  button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit}
+  button:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:10px}
+  .hidden{display:none !important}
+  .kr{font-family:var(--kor)}
+
+  .top{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px}
+  .brand{display:flex; align-items:center; gap:10px}
+  .brand .ring{width:13px; height:13px; border:3px solid var(--accent); border-radius:50%; background:var(--bg2)}
+  .brand h1{font-weight:700; font-size:18px; letter-spacing:-.02em}
+  .brand small{display:block; font-size:11px; color:var(--muted); font-weight:500; letter-spacing:.04em; margin-top:1px}
+  .reset{font-size:12px; color:var(--faint); font-weight:500; padding:6px 8px}
+  .reset:hover{color:var(--muted)}
+  .hbtns{display:flex; gap:4px; align-items:center}
+
+  .langtog{display:inline-flex; border:1px solid var(--line); border-radius:99px; overflow:hidden; background:var(--card)}
+  .langtog button{font-family:var(--eng); font-size:12px; font-weight:700; padding:6px 12px; color:var(--muted)}
+  .langtog button.on{background:var(--accent); color:#fff}
+
+  .seg{display:flex; gap:8px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:5px; margin-bottom:20px}
+  .seg button{flex:1; padding:11px 8px; border-radius:10px; font-weight:700; font-size:14px; color:var(--muted); transition:background .15s, color .15s}
+  .seg button.on{background:var(--accent); color:#fff}
+  .seg button .lv{display:block; font-size:10.5px; font-weight:500; opacity:.8; margin-top:1px}
+
+  .modlist{display:flex; flex-direction:column; gap:13px}
+  .mod{position:relative; display:flex; align-items:center; gap:15px; background:var(--card); border:1px solid var(--line); border-radius:18px; padding:18px; text-align:left; box-shadow:var(--shadow); transition:transform .12s ease, border-color .2s}
+  .mod:hover{transform:translateY(-2px); border-color:var(--accent-soft)}
+  .mod:active{transform:translateY(0)}
+  .mod .mi{width:50px; height:50px; flex-shrink:0; border-radius:14px; background:var(--accent-soft); color:var(--accent); display:flex; align-items:center; justify-content:center; font-family:var(--kor); font-weight:900; font-size:24px}
+  .mod .mtext{flex:1}
+  .mod .mtext h3{font-size:16px; font-weight:700; letter-spacing:-.01em}
+  .mod .mtext p{font-size:12.5px; color:var(--muted); margin-top:2px}
+  .mod .mprog{font-family:var(--eng); font-size:12px; font-weight:600; color:var(--accent); flex-shrink:0}
+  .mod .arrow{font-size:18px; color:var(--faint); flex-shrink:0}
+  .mod.locked{opacity:.6}
+  .mod.locked .mi{background:var(--line2); color:var(--faint)}
+  .mod.locked .mprog{color:var(--faint)}
+  .levmsg{text-align:center; color:var(--muted); font-size:13.5px; padding:30px 20px; line-height:1.6}
+
+  .footnote{text-align:center; font-size:11.5px; color:var(--faint); margin-top:auto; padding-top:26px; line-height:1.6}
+
+  /* study */
+  #study{flex:1; display:flex; flex-direction:column}
+  .study-top{display:flex; align-items:center; gap:12px; margin-bottom:6px}
+  .back{font-size:14px; color:var(--muted); font-weight:600; padding:8px 10px 8px 0; display:flex; align-items:center; gap:5px}
+  .back:hover{color:var(--ink)}
+  .study-top .where{font-weight:600; font-size:14px}
+  .study-top .counts{margin-left:auto; display:flex; gap:12px; font-size:12.5px; font-weight:600}
+  .study-top .counts .k{color:var(--accent)}
+  .study-top .counts .l{color:var(--green)}
+  .progress-mini{height:6px; background:var(--line2); border-radius:99px; overflow:hidden; margin:10px 2px 0}
+  .progress-mini > i{display:block; height:100%; background:var(--accent); border-radius:99px; transition:width .35s ease}
+
+  .stage{flex:1; display:flex; align-items:center; justify-content:center; padding:24px 4px 18px; perspective:1600px}
+  .flash{position:relative; width:100%; max-width:440px; aspect-ratio:3/4; max-height:66vh; transform-style:preserve-3d; transition:transform .5s cubic-bezier(.2,.7,.2,1); cursor:pointer}
+  .flash.flipped{transform:rotateY(180deg)}
+  .face{position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; background:var(--card); border:1px solid var(--line); border-radius:24px; box-shadow:var(--shadow); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px 26px; text-align:center}
+  .face::before{content:""; position:absolute; top:16px; left:50%; transform:translateX(-50%); width:15px; height:15px; border:3px solid var(--line); border-radius:50%; background:var(--bg2)}
+  .face .corner{position:absolute; bottom:15px; right:20px; font-family:var(--eng); font-size:11px; color:var(--faint); font-weight:500}
+  .tagword{position:absolute; top:32px; left:0; right:0; font-family:var(--eng); font-size:10.5px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--faint)}
+
+  .bigko{font-family:var(--kor); font-weight:900; color:var(--ink); line-height:1.05}
+  .face.jamo .bigko{font-size:clamp(80px,26vw,140px)}
+  .face.word .bigko{font-size:clamp(34px,9vw,52px); font-weight:700}
+  .rom{font-family:var(--eng); font-size:15px; color:var(--accent); font-weight:600; margin-top:10px; letter-spacing:.01em}
+  .divider{width:54px; height:2px; background:var(--line); border-radius:2px; margin:18px 0}
+  .example{font-family:var(--kor); font-weight:500; font-size:clamp(18px,4.8vw,23px); line-height:1.5; color:var(--ink)}
+  .exrom{font-family:var(--eng); font-size:13px; color:var(--faint); margin-top:6px}
+  .meaning{font-size:clamp(22px,6vw,30px); font-weight:700; letter-spacing:-.01em; color:var(--ink); line-height:1.3}
+  .note{font-size:clamp(12.5px,3.4vw,14px); color:var(--muted); line-height:1.5; margin-top:9px; max-width:92%}
+  .back-face.word{justify-content:flex-start; padding-top:46px; padding-bottom:24px; overflow-y:auto}
+  .back-face.word .divider{margin:14px 0}
+  .desc{font-size:clamp(15px,4vw,18px); font-weight:500; line-height:1.5; color:var(--ink); max-width:90%}
+  .transl{font-size:clamp(15px,4vw,18px); font-weight:500; line-height:1.45; color:var(--ink)}
+  .subko{font-family:var(--kor); font-size:15px; color:var(--accent-dark); font-weight:700}
+
+  .speak{display:inline-flex; align-items:center; gap:7px; background:var(--accent-soft); color:var(--accent-dark); font-family:var(--eng); font-weight:600; font-size:13px; padding:9px 15px; border-radius:99px; transition:transform .1s ease, background .15s; margin-top:18px}
+  .speak.sm{font-size:12px; padding:6px 12px; gap:5px; margin-top:0}
+  .speak:hover{background:#DCDEF6}
+  .speak:active{transform:scale(.94)}
+  .speak.on{background:var(--accent); color:#fff}
+  .speak svg{width:14px; height:14px; display:block}
+  .speak.on svg{animation:wiggle .5s ease infinite}
+  @keyframes wiggle{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+  .replay{display:flex; gap:9px; margin-top:18px}
+
+  .hint{position:absolute; bottom:42px; left:0; right:0; font-size:12.5px; color:var(--faint); display:flex; align-items:center; justify-content:center; gap:6px}
+  .hint .dot{display:inline-block; width:5px; height:5px; background:var(--faint); border-radius:50%; animation:blink 1.4s infinite}
+  @keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+  .back-face{transform:rotateY(180deg); background:var(--paper)}
+
+  .controls{display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:6px 2px 2px}
+  .controls button{padding:16px; border-radius:15px; font-weight:700; font-size:15px; display:flex; align-items:center; justify-content:center; gap:7px; transition:transform .1s ease, filter .15s}
+  .controls button:active{transform:scale(.97)}
+  .btn-again{background:var(--green-soft); color:#2E5C3F; border:1px solid #CFE3D4}
+  .btn-known{background:var(--accent); color:#fff}
+  .btn-known:hover{background:var(--accent-dark)}
+  .controls .kbd{font-family:var(--eng); font-size:11px; opacity:.6; font-weight:500}
+
+  #done{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:30px}
+  #done .seal{width:84px; height:84px; border-radius:50%; background:var(--accent-soft); border:3px solid var(--accent); display:flex; align-items:center; justify-content:center; font-size:38px; margin-bottom:22px}
+  #done h2{font-size:24px; font-weight:700; letter-spacing:-.02em; margin-bottom:8px}
+  #done p{color:var(--muted); font-size:14.5px; margin-bottom:4px}
+  #done p b{color:var(--accent); font-weight:700}
+  .done-actions{display:flex; flex-direction:column; gap:10px; width:100%; max-width:300px; margin-top:26px}
+  .done-actions button{padding:15px; border-radius:14px; font-weight:700; font-size:15px}
+  .da-primary{background:var(--accent); color:#fff}
+  .da-ghost{background:transparent; color:var(--accent); border:1px solid var(--accent-soft)}
+  .da-text{background:none; color:var(--muted); font-size:13.5px; font-weight:600; padding:6px}
+
+  .modal{position:fixed; inset:0; background:rgba(30,30,50,.5); display:none; align-items:flex-end; justify-content:center; z-index:60}
+  .modal.show{display:flex}
+  .sheet{position:relative; background:var(--card); width:100%; max-width:560px; border-radius:22px 22px 0 0; padding:24px 20px calc(26px + env(safe-area-inset-bottom)); box-shadow:0 -12px 44px rgba(0,0,0,.25); max-height:90vh; max-height:90dvh; overflow:auto; animation:slideup .28s ease}
+  @keyframes slideup{from{transform:translateY(40px); opacity:.5}to{transform:translateY(0); opacity:1}}
+  .sheet-x{position:absolute; top:15px; right:15px; width:30px; height:30px; border-radius:50%; background:var(--line2); color:var(--muted); font-size:13px; font-weight:700}
+  .sheet h3{font-size:17px; font-weight:700; margin-bottom:6px; padding-right:34px}
+  .sheet .desc2{font-size:12.5px; color:var(--muted); line-height:1.65; margin-bottom:18px}
+  .sheet .blk{margin-bottom:16px}
+  .sheet .blk h4{font-size:13px; font-weight:700; color:var(--accent); margin-bottom:8px}
+  .sheet textarea{width:100%; height:58px; border:1px solid var(--line); border-radius:11px; padding:10px 11px; font-size:11.5px; font-family:var(--eng); line-height:1.4; resize:vertical; background:var(--paper); color:var(--ink); margin-top:9px}
+  .mrow{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+  .mbtn{display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:12px 16px; border-radius:12px; font-weight:700; font-size:13.5px}
+  .mbtn.pri{background:var(--accent); color:#fff}
+  .mbtn.sec{background:var(--accent-soft); color:var(--accent-dark)}
+  .mbtn.ghost{background:none; color:var(--muted); font-weight:600; font-size:12.5px; padding:8px; margin-top:4px}
+  .file-lbl{display:inline-flex; align-items:center; padding:12px 16px; border-radius:12px; background:#fff; border:1px solid var(--line); font-size:13.5px; font-weight:600; cursor:pointer; color:var(--ink)}
+  .file-lbl input{display:none}
+  @media (prefers-reduced-motion:reduce){ .flash{transition:none} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="home">
+    <div class="top">
+      <div class="brand">
+        <span class="ring"></span>
+        <div><h1>Learn Korean</h1><small class="kr">한국어 배우기</small></div>
+      </div>
+      <div class="hbtns">
+        <div class="langtog" id="langTog">
+          <button data-lang="en" class="on">EN</button>
+          <button data-lang="es">ES</button>
+        </div>
+        <button class="reset" id="backupBtn">⤓</button>
+      </div>
+    </div>
+
+    <div class="seg" id="levSeg">
+      <button data-lev="beginner" class="on">Beginner<span class="lv">초급</span></button>
+      <button data-lev="intermediate">Intermediate<span class="lv">중급</span></button>
+      <button data-lev="advanced">Advanced<span class="lv">고급</span></button>
+    </div>
+
+    <div id="modWrap"></div>
+
+    <div class="footnote" id="foot">Tip: add to your home screen to use full-screen · Progress saves automatically on this device</div>
+  </div>
+
+  <div id="study" class="hidden">
+    <div class="study-top">
+      <button class="back" id="backBtn">← <span id="backLbl">Back</span></button>
+      <span class="where" id="whereLabel">Letters</span>
+      <div class="counts"><span class="k">✓ <span id="cntKnown">0</span></span><span class="l">↺ <span id="cntLearn">0</span></span></div>
+    </div>
+    <div class="progress-mini"><i id="miniBar"></i></div>
+
+    <div class="stage">
+      <div class="flash" id="flash">
+        <div class="face front" id="frontFace">
+          <span class="tagword" id="frontTag">LETTER</span>
+          <span class="bigko" id="fKo">가</span>
+          <span class="rom" id="fRom">ga</span>
+          <button class="speak" id="spk1" type="button">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a4.5 4.5 0 0 1 0 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <span id="spk1lbl">Listen</span>
+          </button>
+          <span class="hint" id="frontHint">tap to flip <span class="dot"></span></span>
+          <span class="corner" id="fCorner">1 / 24</span>
+        </div>
+        <div class="face back-face" id="backFace">
+          <!-- filled by renderCard -->
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-again" id="btnAgain"><span id="againLbl">Again</span> <span class="kbd">(1)</span></button>
+      <button class="btn-known" id="btnKnown"><span id="knownLbl">Got it</span> ✓ <span class="kbd">(2)</span></button>
+    </div>
+  </div>
+
+  <div id="done" class="hidden">
+    <div class="seal">⭐</div>
+    <h2 id="doneTitle">Done!</h2>
+    <p><b id="doneKnown">0</b> <span id="doneKnownLbl">learned this round</span></p>
+    <p id="doneLearnLine" class="hidden"><b id="doneLearn" style="color:var(--green)">0</b> <span id="doneLearnLbl">to review</span></p>
+    <div class="done-actions">
+      <button class="da-ghost" id="doneReview">Review again</button>
+      <button class="da-text" id="doneHome">Back to menu</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal" id="backupModal">
+  <div class="sheet">
+    <button class="sheet-x" id="backupClose" aria-label="close">✕</button>
+    <h3>Backup · Move to another device</h3>
+    <p class="desc2">Export a file/code on one device, then import it on another to keep your progress.</p>
+    <div class="blk">
+      <h4>① Export</h4>
+      <button class="mbtn pri" id="exportBtn">Download file + copy code</button>
+      <textarea id="backupText" readonly placeholder="code appears here"></textarea>
+    </div>
+    <div class="blk">
+      <h4>② Import</h4>
+      <textarea id="importText" placeholder="paste the code from your other device"></textarea>
+      <div class="mrow">
+        <button class="mbtn sec" id="importBtn">Restore from code</button>
+        <label class="file-lbl">Load from file<input type="file" id="importFile" accept="application/json,.json"></label>
+      </div>
+    </div>
+    <button class="mbtn ghost" id="modalReset">Reset progress on this device</button>
+  </div>
+</div>
+
+<script>
+/* 한글 자모: [글자, 로마자, 설명_en, 설명_es, 발음듣기용(가까운 음절)] */
+const JAMO_CON = [
+["ㄱ","g/k","like 'g' in go","como la 'g' en gato","가"],
+["ㄴ","n","like 'n' in now","como la 'n' en no","나"],
+["ㄷ","d/t","like 'd' in do","como la 'd' en dar","다"],
+["ㄹ","r/l","between 'r' and 'l'","entre 'r' y 'l'","라"],
+["ㅁ","m","like 'm' in mom","como la 'm' en mamá","마"],
+["ㅂ","b/p","like 'b' in boy","como la 'b' en bien","바"],
+["ㅅ","s","like 's' in see","como la 's' en sí","사"],
+["ㅇ","ng/silent","silent at start, 'ng' at end","muda al inicio, 'ng' al final","아"],
+["ㅈ","j","like 'j' in jam","como la 'y' en yo","자"],
+["ㅊ","ch","like 'ch' in chat","como 'ch' en chico","차"],
+["ㅋ","k","aspirated 'k'","'k' aspirada","카"],
+["ㅌ","t","aspirated 't'","'t' aspirada","타"],
+["ㅍ","p","aspirated 'p'","'p' aspirada","파"],
+["ㅎ","h","like 'h' in hat","como la 'j' en jamón (suave)","하"],
+];
+const JAMO_VOW = [
+["ㅏ","a","like 'a' in father","como la 'a' en casa","아"],
+["ㅑ","ya","like 'ya' in yard","como 'ya' en yate","야"],
+["ㅓ","eo","like 'u' in but","como la 'o' abierta","어"],
+["ㅕ","yeo","like 'yu' in yummy (open)","'yo' abierta","여"],
+["ㅗ","o","like 'o' in go","como la 'o' en sol","오"],
+["ㅛ","yo","like 'yo' in yoga","como 'yo'","요"],
+["ㅜ","u","like 'oo' in moon","como la 'u' en luna","우"],
+["ㅠ","yu","like 'you'","como 'yu'","유"],
+["ㅡ","eu","like 'u' in put (unrounded)","'u' sin redondear","으"],
+["ㅣ","i","like 'ee' in see","como la 'i' en sí","이"],
+];
+
+/* Day별 주제: [영어 주제, 한국어 주제, 이모지] */
+const DAY_TITLES = [
+["Greetings & Basics","인사·기본 표현","👋"],
+["Numbers, Family & Food","숫자·가족·음식","👨‍👩‍👧"],
+["Time, Days & Weather","시간·요일·날씨","🌤️"],
+["Adjectives & Feelings","형용사·감정","😊"],
+["Colors, Body & Clothes","색깔·신체·옷","👕"],
+["Places & Transport","위치·방향·교통","🚌"],
+["Common Verbs","자주 쓰는 동사","🏃"],
+["Jobs & People","직업·사람","👩‍⚕️"],
+["Home & Objects","집·가구·물건","🏠"],
+["Animals & Nature","동물·자연","🐶"],
+["School & Studying","학교·공부","📚"],
+["Food & Taste","음식·맛·식당","🍜"],
+["Shopping & Money","쇼핑·돈·세는 말","🛒"],
+];
+
+/* 초급 단어 (Day별) */
+const WORD_DAYS = [
+[
+["안녕하세요","annyeonghaseyo","Hello","Hola","A polite, all-purpose greeting. Use it when meeting someone or with people older than you. Works any time of day.","Un saludo cortés para cualquier momento. Úsalo al conocer a alguien o con personas mayores. Sirve a cualquier hora.","안녕하세요, 만나서 반가워요.","annyeonghaseyo, mannaseo bangawoyo.","Hello, nice to meet you.","Hola, encantado de conocerte."],
+["안녕","annyeong","Hi / Bye (casual)","Hola / Adiós (informal)","Casual greeting used with close friends or people younger than you. It means both 'hi' and 'bye'.","Saludo informal con amigos cercanos o personas más jóvenes. Significa tanto 'hola' como 'adiós'.","안녕! 잘 가.","annyeong! jal ga.","Bye! Take care.","¡Adiós! Cuídate."],
+["감사합니다","gamsahamnida","Thank you","Gracias","A polite, formal way to say thanks. Safe to use with anyone. A more casual form is 고마워요 (gomawoyo).","Forma cortés y formal de dar las gracias. Segura con cualquiera. Una forma informal es 고마워요 (gomawoyo).","도와주셔서 감사합니다.","dowajusyeoseo gamsahamnida.","Thank you for your help.","Gracias por su ayuda."],
+["죄송합니다","joesonghamnida","I'm sorry","Lo siento","A formal apology. Use it to say sorry politely. Casual form: 미안해요 (mianhaeyo).","Una disculpa formal. Úsala para pedir perdón con cortesía. Forma informal: 미안해요 (mianhaeyo).","늦어서 죄송합니다.","neujeoseo joesonghamnida.","I'm sorry for being late.","Siento llegar tarde."],
+["네","ne","Yes","Sí","Means 'yes'. Also used like 'I see / okay' to show you're listening. Said gently and often in conversation.","Significa 'sí'. También se usa como 'ya veo / vale' para mostrar que escuchas. Muy común al conversar.","네, 맞아요.","ne, majayo.","Yes, that's right.","Sí, así es."],
+["아니요","aniyo","No","No","The polite way to say 'no'. Use it to disagree or decline gently. Casual form: 아니 (ani).","La forma cortés de decir 'no'. Úsala para negar o rechazar con suavidad. Forma informal: 아니 (ani).","아니요, 괜찮아요.","aniyo, gwaenchanayo.","No, it's okay.","No, está bien."],
+["반갑습니다","bangapseumnida","Nice to meet you","Encantado/a","Said when meeting someone for the first time. Often follows 안녕하세요.","Se dice al conocer a alguien por primera vez. Suele ir después de 안녕하세요.","만나서 반갑습니다.","mannaseo bangapseumnida.","I'm glad to meet you.","Me alegro de conocerte."],
+["실례합니다","sillyehamnida","Excuse me","Disculpe","Polite phrase to get attention or pass by someone. Like 'excuse me' before asking something.","Frase cortés para llamar la atención o pasar. Como 'disculpe' antes de preguntar algo.","실례합니다, 길 좀 묻겠습니다.","sillyehamnida, gil jom mutgesseumnida.","Excuse me, may I ask for directions?","Disculpe, ¿puedo preguntar por una dirección?"],
+["괜찮아요","gwaenchanayo","It's okay / I'm fine","Está bien / Estoy bien","Very useful phrase meaning 'it's okay', 'no problem', or 'I'm fine'. Also used to politely decline.","Frase muy útil: 'está bien', 'no pasa nada' o 'estoy bien'. También para rechazar con cortesía.","괜찮아요, 걱정하지 마세요.","gwaenchanayo, geokjeonghaji maseyo.","It's okay, don't worry.","Está bien, no te preocupes."],
+["주세요","juseyo","Please give me","Por favor (deme)","Add it after a noun to ask for something politely: 물 주세요 = water, please.","Añádelo después de un sustantivo para pedir algo con cortesía: 물 주세요 = agua, por favor.","이거 주세요.","igeo juseyo.","This one, please.","Este, por favor."],
+["이름","ireum","Name","Nombre","Your name. '이름이 뭐예요?' = What's your name?","Tu nombre. '이름이 뭐예요?' = ¿Cómo te llamas?","이름이 뭐예요?","ireumi mwoyeyo?","What's your name?","¿Cómo te llamas?"],
+["저","jeo","I / me (polite)","Yo (cortés)","The humble word for 'I', used in polite speech. Casual form is 나 (na).","La forma humilde de 'yo', usada al hablar con cortesía. La forma informal es 나 (na).","저는 학생이에요.","jeoneun haksaengieyo.","I am a student.","Soy estudiante."],
+["네 / 예","ne / ye","Yes (formal)","Sí (formal)","예 (ye) is a slightly more formal 'yes' than 네. Both are polite.","예 (ye) es un 'sí' algo más formal que 네. Ambos son corteses.","예, 알겠습니다.","ye, algetseumnida.","Yes, I understand.","Sí, entiendo."],
+["사람","saram","Person","Persona","The general word for a person or people. Add it to other words: 한국 사람 = Korean (person).","La palabra general para persona o gente. Combínala: 한국 사람 = (persona) coreana.","저 사람은 누구예요?","jeo sarameun nuguyeyo?","Who is that person?","¿Quién es esa persona?"],
+["친구","chingu","Friend","Amigo/a","A friend, usually someone your own age. Korean often reserves it for peers rather than older people.","Un amigo/a, normalmente de tu edad. En coreano suele usarse entre iguales, no con personas mayores.","친구를 만나요.","chingureul mannayo.","I meet a friend.","Me encuentro con un amigo."],
+["선생님","seonsaengnim","Teacher","Profesor/a","Means 'teacher', but also a polite way to address professionals or people you respect.","Significa 'profesor/a', pero también una forma cortés de dirigirse a profesionales o personas respetadas.","선생님, 질문 있어요.","seonsaengnim, jilmun isseoyo.","Teacher, I have a question.","Profesor, tengo una pregunta."],
+["학생","haksaeng","Student","Estudiante","A student. 학(hak) means 'learning' and appears in 학교 (school) too.","Un estudiante. 학(hak) significa 'aprender' y aparece también en 학교 (escuela).","저는 한국어 학생이에요.","jeoneun hangugeo haksaengieyo.","I am a Korean language student.","Soy estudiante de coreano."],
+["네 살","ne sal","Four years old","Cuatro años","살 (sal) counts age in years with native Korean numbers: 한 살, 두 살, 세 살, 네 살...","살 (sal) cuenta la edad en años con números coreanos nativos: 한 살, 두 살, 세 살, 네 살...","제 동생은 네 살이에요.","je dongsaengeun ne sarieyo.","My younger sibling is four years old.","Mi hermano menor tiene cuatro años."],
+["오늘","oneul","Today","Hoy","Means 'today'. Related time words: 어제 (yesterday), 내일 (tomorrow).","Significa 'hoy'. Palabras relacionadas: 어제 (ayer), 내일 (mañana).","오늘 날씨가 좋아요.","oneul nalssiga joayo.","The weather is nice today.","Hoy hace buen tiempo."],
+["내일","naeil","Tomorrow","Mañana","Means 'tomorrow' (the next day) — not 'morning'. For morning, the word is 아침 (achim).","Significa 'mañana' (el día siguiente), no la parte del día. Para la mañana se usa 아침 (achim).","내일 또 만나요.","naeil tto mannayo.","See you again tomorrow.","Nos vemos mañana."],
+["어제","eoje","Yesterday","Ayer","Means 'yesterday'. Pairs with 오늘 (today) and 내일 (tomorrow).","Significa 'ayer'. Va con 오늘 (hoy) y 내일 (mañana).","어제 영화를 봤어요.","eoje yeonghwareul bwasseoyo.","I watched a movie yesterday.","Ayer vi una película."],
+["지금","jigeum","Now","Ahora","Means 'now' or 'right now'. '지금 가요' = I'm going now.","Significa 'ahora' o 'ahora mismo'. '지금 가요' = Voy ahora.","지금 어디예요?","jigeum eodiyeyo?","Where are you now?","¿Dónde estás ahora?"],
+["여기","yeogi","Here","Aquí","Means 'here'. Pairs with 거기 (there) and 저기 (over there).","Significa 'aquí'. Va con 거기 (ahí) y 저기 (allá).","여기 앉으세요.","yeogi anjeuseyo.","Please sit here.","Siéntese aquí, por favor."],
+["저기","jeogi","Over there","Allá","Means 'over there' (far from both speakers). Also used to softly get attention, like 'um, excuse me'.","Significa 'allá' (lejos de ambos). También para llamar la atención con suavidad, como 'oiga'.","저기가 화장실이에요.","jeogiga hwajangsirieyo.","The restroom is over there.","El baño está allá."],
+["물","mul","Water","Agua","The everyday word for drinking water. You'll hear it a lot in restaurants: 물 주세요.","La palabra cotidiana para el agua de beber. Muy común en restaurantes: 물 주세요.","물 한 잔 주세요.","mul han jan juseyo.","Please give me a glass of water.","Un vaso de agua, por favor."],
+["밥","bap","Rice / Meal","Arroz / Comida","Literally cooked rice, but also means 'a meal'. '밥 먹었어요?' is a common friendly greeting.","Literalmente arroz cocido, pero también 'una comida'. '밥 먹었어요?' es un saludo amistoso común.","밥을 먹었어요?","babeul meogeosseoyo?","Did you eat?","¿Has comido?"],
+["집","jip","House / Home","Casa","Means both a house (building) and home. '집에 가요' = I'm going home.","Significa tanto la casa como el hogar. '집에 가요' = Voy a casa.","우리 집은 학교 근처예요.","uri jibeun hakgyo geuncheoyeyo.","My house is near the school.","Mi casa está cerca de la escuela."],
+["학교","hakgyo","School","Escuela","The place where you study. 학(hak) means 'learning' and appears in many study words.","El lugar donde se estudia. 학(hak) significa 'aprender' y aparece en muchas palabras.","학교에 가요.","hakgyoe gayo.","I go to school.","Voy a la escuela."],
+["좋아요","joayo","Good / I like it","Bueno / Me gusta","A very common word meaning 'good' or 'I like it'. Used to agree or show approval.","Palabra muy común: 'bueno' o 'me gusta'. Se usa para aceptar o aprobar.","이 음악이 좋아요.","i eumagi joayo.","I like this music.","Me gusta esta música."],
+["사랑","sarang","Love","Amor","The noun 'love'. To say 'I love you', use the verb form: 사랑해요 (saranghaeyo).","El sustantivo 'amor'. Para decir 'te quiero', usa el verbo: 사랑해요 (saranghaeyo).","가족을 사랑해요.","gajogeul saranghaeyo.","I love my family.","Amo a mi familia."]
+],
+[
+["일","il","One (1)","Uno (1)","Sino-Korean number for 1. Used for dates, money, phone numbers, and math. (Native '하나' is used for counting things.)","Número sino-coreano para 1. Se usa en fechas, dinero y teléfonos. ('하나' nativo se usa al contar cosas.)","오늘은 일월 일일이에요.","oneureun irwol iririeyo.","Today is January 1st.","Hoy es 1 de enero."],
+["이","i","Two (2)","Dos (2)","Sino-Korean number for 2. Same sound as 이 (this/tooth), so context matters.","Número sino-coreano para 2. Suena igual que 이 (este/diente); el contexto importa.","버스 이 번을 타세요.","beoseu i beoneul taseyo.","Take bus number two.","Tome el autobús número dos."],
+["삼","sam","Three (3)","Tres (3)","Sino-Korean number for 3. Used in dates, prices, and counting in sequences.","Número sino-coreano para 3. Se usa en fechas, precios y secuencias.","삼 층에 살아요.","sam cheunge sarayo.","I live on the third floor.","Vivo en el tercer piso."],
+["사","sa","Four (4)","Cuatro (4)","Sino-Korean number for 4. Sounds like the word for 'death', so some buildings skip floor 4.","Número sino-coreano para 4. Suena como 'muerte', por eso algunos edificios omiten el piso 4.","사 분 남았어요.","sa bun namasseoyo.","Four minutes are left.","Quedan cuatro minutos."],
+["오","o","Five (5)","Cinco (5)","Sino-Korean number for 5. Combine for bigger numbers: 오십 = 50.","Número sino-coreano para 5. Combínalo: 오십 = 50.","오 분만 기다려 주세요.","o bunman gidaryeo juseyo.","Please wait just five minutes.","Espere solo cinco minutos, por favor."],
+["십","sip","Ten (10)","Diez (10)","Sino-Korean number for 10. Build numbers: 이십 = 20, 삼십 = 30.","Número sino-coreano para 10. Forma números: 이십 = 20, 삼십 = 30.","사과 십 개 주세요.","sagwa sip gae juseyo.","Ten apples, please.","Diez manzanas, por favor."],
+["가족","gajok","Family","Familia","The word for family. '우리 가족' = my family.","La palabra para familia. '우리 가족' = mi familia.","우리 가족은 네 명이에요.","uri gajogeun ne myeongieyo.","My family has four people.","Mi familia tiene cuatro personas."],
+["어머니","eomeoni","Mother","Madre","The formal word for mother. The casual, affectionate form is 엄마 (eomma).","La palabra formal para madre. La forma cariñosa e informal es 엄마 (eomma).","어머니는 요리를 잘하세요.","eomeonineun yorireul jalhaseyo.","My mother cooks well.","Mi madre cocina bien."],
+["아버지","abeoji","Father","Padre","The formal word for father. The casual, affectionate form is 아빠 (appa).","La palabra formal para padre. La forma cariñosa e informal es 아빠 (appa).","아버지는 회사에 다니세요.","abeojineun hoesae danisaeyo.","My father works at a company.","Mi padre trabaja en una empresa."],
+["동생","dongsaeng","Younger sibling","Hermano/a menor","A younger brother or sister. Add 남 or 여 to specify: 남동생 (younger brother), 여동생 (younger sister).","Hermano o hermana menor. Especifica con 남/여: 남동생 (hermano menor), 여동생 (hermana menor).","제 동생은 귀여워요.","je dongsaengeun gwiyeowoyo.","My younger sibling is cute.","Mi hermano menor es lindo."],
+["아기","agi","Baby","Bebé","A baby or infant. Also written 애기 in casual speech.","Un bebé. También se escribe 애기 en lenguaje informal.","아기가 자고 있어요.","agiga jago isseoyo.","The baby is sleeping.","El bebé está durmiendo."],
+["커피","keopi","Coffee","Café","A loanword from English 'coffee'. Very common in daily life.","Préstamo del inglés 'coffee'. Muy común a diario.","커피 한 잔 주세요.","keopi han jan juseyo.","One cup of coffee, please.","Un café, por favor."],
+["차","cha","Tea / Car","Té / Coche","차 can mean 'tea' or 'car' depending on context. Here it means tea.","차 puede significar 'té' o 'coche' según el contexto. Aquí significa té.","녹차를 마셔요.","nokchareul masyeoyo.","I drink green tea.","Bebo té verde."],
+["빵","ppang","Bread","Pan","The word for bread. The double ㅃ is a tense, stronger 'p' sound.","La palabra para pan. La ㅃ doble es un sonido 'p' tenso y más fuerte.","아침에 빵을 먹어요.","achime ppangeul meogeoyo.","I eat bread in the morning.","Como pan por la mañana."],
+["김치","gimchi","Kimchi","Kimchi","Korea's famous fermented vegetable side dish, usually spicy. Served with almost every meal.","El famoso plato coreano de verduras fermentadas, normalmente picante. Acompaña casi cada comida.","김치는 조금 매워요.","gimchineun jogeum maewoyo.","Kimchi is a little spicy.","El kimchi es un poco picante."],
+["과일","gwail","Fruit","Fruta","The general word for fruit. 사과 (apple), 바나나 (banana) are kinds of 과일.","La palabra general para fruta. 사과 (manzana), 바나나 (plátano) son tipos de 과일.","과일을 좋아해요.","gwaireul joahaeyo.","I like fruit.","Me gusta la fruta."],
+["고기","gogi","Meat","Carne","The general word for meat. Add the animal: 소고기 (beef), 돼지고기 (pork), 닭고기 (chicken).","La palabra general para carne. Añade el animal: 소고기 (res), 돼지고기 (cerdo), 닭고기 (pollo).","고기를 구워요.","gogireul guwoyo.","I grill meat.","Aso la carne."],
+["화장실","hwajangsil","Restroom","Baño","The polite word for a toilet/restroom. '화장실이 어디예요?' = Where is the restroom?","La palabra cortés para el baño. '화장실이 어디예요?' = ¿Dónde está el baño?","화장실이 어디예요?","hwajangsiri eodiyeyo?","Where is the restroom?","¿Dónde está el baño?"],
+["병원","byeongwon","Hospital / Clinic","Hospital / Clínica","Means both a hospital and a doctor's clinic. '병원에 가요' = I go to the doctor.","Significa tanto hospital como clínica. '병원에 가요' = Voy al médico.","아파서 병원에 가요.","apaseo byeongwone gayo.","I'm sick, so I'm going to the hospital.","Estoy enfermo, así que voy al hospital."],
+["가게","gage","Shop / Store","Tienda","A small shop or store. A bigger store is 마트 (mart) or 백화점 (department store).","Una tienda pequeña. Una más grande es 마트 (supermercado) o 백화점 (grandes almacenes).","가게에서 물을 샀어요.","gageeseo mureul sasseoyo.","I bought water at the shop.","Compré agua en la tienda."],
+["시장","sijang","Market","Mercado","A traditional market with many stalls. Also means 'mayor' in a different context.","Un mercado tradicional con muchos puestos. También significa 'alcalde' en otro contexto.","시장에서 과일을 팔아요.","sijangeseo gwaireul parayo.","They sell fruit at the market.","Venden fruta en el mercado."],
+["식당","sikdang","Restaurant","Restaurante","A place to eat, especially casual or local restaurants. 식(sik) means 'eat/food'.","Un lugar para comer, sobre todo casero o local. 식(sik) significa 'comer/comida'.","이 식당은 맛있어요.","i sikdangeun masisseoyo.","This restaurant is delicious.","Este restaurante está delicioso."],
+["가다","gada","To go","Ir","Dictionary form of the verb 'to go'. In polite speech it becomes 가요 (gayo).","Forma de diccionario del verbo 'ir'. En lenguaje cortés es 가요 (gayo).","학교에 가요.","hakgyoe gayo.","I go to school.","Voy a la escuela."],
+["오다","oda","To come","Venir","Dictionary form of 'to come'. Polite form: 와요 (wayo).","Forma de diccionario de 'venir'. Forma cortés: 와요 (wayo).","친구가 집에 와요.","chinguga jibe wayo.","A friend comes to my house.","Un amigo viene a mi casa."],
+["먹다","meokda","To eat","Comer","Dictionary form of 'to eat'. Polite form: 먹어요 (meogeoyo).","Forma de diccionario de 'comer'. Forma cortés: 먹어요 (meogeoyo).","점심을 먹어요.","jeomsimeul meogeoyo.","I eat lunch.","Como el almuerzo."],
+["마시다","masida","To drink","Beber","Dictionary form of 'to drink'. Polite form: 마셔요 (masyeoyo).","Forma de diccionario de 'beber'. Forma cortés: 마셔요 (masyeoyo).","물을 많이 마셔요.","mureul mani masyeoyo.","I drink a lot of water.","Bebo mucha agua."],
+["보다","boda","To see / watch","Ver / mirar","Dictionary form of 'to see/watch'. Polite form: 봐요 (bwayo).","Forma de diccionario de 'ver/mirar'. Forma cortés: 봐요 (bwayo).","영화를 봐요.","yeonghwareul bwayo.","I watch a movie.","Veo una película."],
+["사다","sada","To buy","Comprar","Dictionary form of 'to buy'. Polite form: 사요 (sayo).","Forma de diccionario de 'comprar'. Forma cortés: 사요 (sayo).","빵을 사요.","ppangeul sayo.","I buy bread.","Compro pan."],
+["자다","jada","To sleep","Dormir","Dictionary form of 'to sleep'. Polite form: 자요 (jayo).","Forma de diccionario de 'dormir'. Forma cortés: 자요 (jayo).","밤에 일찍 자요.","bame iljjik jayo.","I sleep early at night.","Duermo temprano por la noche."],
+["주다","juda","To give","Dar","Dictionary form of 'to give'. The polite request form 주세요 (juseyo) means 'please give me'.","Forma de diccionario de 'dar'. La forma cortés 주세요 (juseyo) significa 'deme por favor'.","선물을 줘요.","seonmureul jwoyo.","I give a gift.","Doy un regalo."]
+],
+[
+["시간","sigan","Time / Hour","Tiempo / Hora","Means 'time' in general, and also counts hours (한 시간 = one hour).","Significa 'tiempo' en general, y también cuenta horas (한 시간 = una hora).","시간이 없어요.","sigani eopseoyo.","I don't have time.","No tengo tiempo."],
+["지금","jigeum","Now","Ahora","Means 'now' or 'right now'. '지금 가요' = I'm going now.","Significa 'ahora' o 'ahora mismo'. '지금 가요' = Voy ahora.","지금 몇 시예요?","jigeum myeot siyeyo?","What time is it now?","¿Qué hora es ahora?"],
+["시","si","O'clock (hour)","En punto (hora)","Counts the hour with native numbers: 한 시 (1 o'clock), 두 시 (2 o'clock).","Cuenta la hora con números nativos: 한 시 (la 1), 두 시 (las 2).","세 시에 만나요.","se sie mannayo.","Let's meet at three o'clock.","Quedamos a las tres."],
+["분","bun","Minute","Minuto","Counts minutes with Sino-Korean numbers: 십 분 (10 minutes), 삼십 분 (30 minutes).","Cuenta minutos con números sino-coreanos: 십 분 (10 min), 삼십 분 (30 min).","십 분 후에 갈게요.","sip bun hue galgeyo.","I'll go in ten minutes.","Iré en diez minutos."],
+["오전","ojeon","Morning / a.m.","Mañana / a.m.","The 'a.m.' part of the day, before noon. Pairs with 오후 (p.m.).","La parte 'a.m.' del día, antes del mediodía. Va con 오후 (p.m.).","오전 아홉 시에 시작해요.","ojeon ahop sie sijakhaeyo.","It starts at 9 a.m.","Empieza a las nueve de la mañana."],
+["오후","ohu","Afternoon / p.m.","Tarde / p.m.","The afternoon, or 'p.m.' Pairs with 오전 (a.m.).","La tarde, o 'p.m.' Va con 오전 (a.m.).","오후에 친구를 만나요.","ohue chingureul mannayo.","I meet a friend in the afternoon.","Veo a un amigo por la tarde."],
+["아침","achim","Morning / Breakfast","Mañana / Desayuno","Means both 'morning' and 'breakfast'. '아침을 먹어요' = I eat breakfast.","Significa 'mañana' y 'desayuno'. '아침을 먹어요' = Desayuno.","아침에 운동해요.","achime undonghaeyo.","I exercise in the morning.","Hago ejercicio por la mañana."],
+["점심","jeomsim","Lunch / Noon","Almuerzo / Mediodía","Means 'lunch' and the midday period. '점심 먹었어요?' = Did you have lunch?","Significa 'almuerzo' y el mediodía. '점심 먹었어요?' = ¿Has almorzado?","점심에 김밥을 먹어요.","jeomsime gimbabeul meogeoyo.","I eat gimbap for lunch.","Como gimbap en el almuerzo."],
+["저녁","jeonyeok","Evening / Dinner","Noche / Cena","Means both 'evening' and 'dinner'. '저녁을 먹어요' = I eat dinner.","Significa 'tarde-noche' y 'cena'. '저녁을 먹어요' = Ceno.","저녁에 집에 있어요.","jeonyeoge jibe isseoyo.","I'm at home in the evening.","Estoy en casa por la noche."],
+["밤","bam","Night","Noche","The late-night period. Also a homonym for 'chestnut'. Context tells them apart.","La noche tardía. También es homónimo de 'castaña'; el contexto los distingue.","밤에 잘 자요.","bame jal jayo.","Sleep well at night.","Duerme bien por la noche."],
+["주말","jumal","Weekend","Fin de semana","Saturday and Sunday. '주말에 뭐 해요?' = What do you do on weekends?","Sábado y domingo. '주말에 뭐 해요?' = ¿Qué haces los fines de semana?","주말에 쉬어요.","jumare swieoyo.","I rest on weekends.","Descanso los fines de semana."],
+["월요일","woryoil","Monday","Lunes","The first weekday. Days end in 요일 (-yoil): 화요일 (Tue), 수요일 (Wed)...","El primer día laboral. Los días terminan en 요일: 화요일 (mar), 수요일 (mié)...","월요일에 학교에 가요.","woryoire hakgyoe gayo.","I go to school on Monday.","Voy a la escuela el lunes."],
+["토요일","toyoil","Saturday","Sábado","The start of the weekend. From 토 (earth) + 요일 (day).","El inicio del fin de semana. De 토 (tierra) + 요일 (día).","토요일에 영화를 봐요.","toyoire yeonghwareul bwayo.","I watch a movie on Saturday.","Veo una película el sábado."],
+["일요일","iryoil","Sunday","Domingo","The rest day for many. From 일 (sun) + 요일 (day).","El día de descanso para muchos. De 일 (sol) + 요일 (día).","일요일에 교회에 가요.","iryoire gyohoee gayo.","I go to church on Sunday.","Voy a la iglesia el domingo."],
+["날씨","nalssi","Weather","Clima / Tiempo","The weather. '날씨가 좋아요' = The weather is nice.","El clima. '날씨가 좋아요' = Hace buen tiempo.","오늘 날씨가 어때요?","oneul nalssiga eottaeyo?","How's the weather today?","¿Qué tiempo hace hoy?"],
+["비","bi","Rain","Lluvia","Rain. '비가 와요' = It's raining (literally 'rain comes').","Lluvia. '비가 와요' = Está lloviendo (literalmente 'la lluvia viene').","비가 와요.","biga wayo.","It's raining.","Está lloviendo."],
+["눈","nun","Snow / Eye","Nieve / Ojo","눈 means both 'snow' and 'eye'. Context (and pitch) tell them apart.","눈 significa 'nieve' y 'ojo'. El contexto los distingue.","겨울에 눈이 와요.","gyeoure nuni wayo.","It snows in winter.","Nieva en invierno."],
+["바람","baram","Wind","Viento","Wind. '바람이 불어요' = The wind blows.","Viento. '바람이 불어요' = Sopla el viento.","바람이 많이 불어요.","barami mani bureoyo.","The wind blows a lot.","Sopla mucho viento."],
+["덥다","deopda","To be hot (weather)","Hacer calor","Dictionary form for hot weather. Polite: 더워요 (deowoyo). For hot objects, use 뜨겁다.","Forma de diccionario para clima caluroso. Cortés: 더워요. Para objetos calientes, 뜨겁다.","여름은 너무 더워요.","yeoreumeun neomu deowoyo.","Summer is too hot.","El verano es demasiado caluroso."],
+["춥다","chupda","To be cold (weather)","Hacer frío","Dictionary form for cold weather. Polite: 추워요 (chuwoyo).","Forma de diccionario para clima frío. Cortés: 추워요 (chuwoyo).","겨울은 정말 추워요.","gyeoureun jeongmal chuwoyo.","Winter is really cold.","El invierno es muy frío."],
+["봄","bom","Spring","Primavera","The spring season. The four seasons: 봄, 여름, 가을, 겨울.","La primavera. Las cuatro estaciones: 봄, 여름, 가을, 겨울.","봄에 꽃이 피어요.","bome kkochi pieoyo.","Flowers bloom in spring.","Las flores florecen en primavera."],
+["여름","yeoreum","Summer","Verano","The summer season, hot and often rainy in Korea.","El verano, caluroso y a menudo lluvioso en Corea.","여름에 바다에 가요.","yeoreume badae gayo.","I go to the beach in summer.","Voy a la playa en verano."],
+["가을","gaeul","Autumn / Fall","Otoño","The autumn season, known for cool weather and colorful leaves.","El otoño, conocido por el clima fresco y las hojas de colores.","가을에 단풍이 예뻐요.","gaeure danpungi yeppeoyo.","The autumn leaves are pretty.","Las hojas de otoño son bonitas."],
+["겨울","gyeoul","Winter","Invierno","The winter season, cold and sometimes snowy.","El invierno, frío y a veces con nieve.","겨울에 눈사람을 만들어요.","gyeoure nunsarameul mandeureoyo.","I make a snowman in winter.","Hago un muñeco de nieve en invierno."],
+["오늘","oneul","Today","Hoy","Means 'today'. Related: 어제 (yesterday), 내일 (tomorrow).","Significa 'hoy'. Relacionados: 어제 (ayer), 내일 (mañana).","오늘 뭐 해요?","oneul mwo haeyo?","What are you doing today?","¿Qué haces hoy?"],
+["요일","yoil","Day of the week","Día de la semana","The suffix for weekdays. '무슨 요일이에요?' = What day is it?","El sufijo para los días. '무슨 요일이에요?' = ¿Qué día es?","오늘은 무슨 요일이에요?","oneureun museun yoirieyo?","What day is it today?","¿Qué día es hoy?"],
+["달","dal","Month / Moon","Mes / Luna","달 means both 'month' and 'moon'. For counting months: 한 달 (one month).","달 significa 'mes' y 'luna'. Para contar meses: 한 달 (un mes).","한 달에 한 번 만나요.","han dare han beon mannayo.","We meet once a month.","Nos vemos una vez al mes."],
+["년","nyeon","Year","Año","Counts years with Sino-Korean numbers: 이천이십오 년 (year 2025).","Cuenta años con números sino-coreanos: 이천이십오 년 (año 2025).","일 년이 빨라요.","il nyeoni ppallayo.","A year goes by fast.","Un año pasa rápido."],
+["시계","sigye","Clock / Watch","Reloj","A clock or a wristwatch. From 시 (time) + 계 (device).","Un reloj de pared o de pulsera. De 시 (tiempo) + 계 (aparato).","시계를 봐요.","sigyereul bwayo.","I look at the clock.","Miro el reloj."],
+["하루","haru","One day / a day","Un día","Means a single day or 'all day'. '하루 종일' = all day long.","Significa un solo día o 'todo el día'. '하루 종일' = todo el día.","하루가 정말 길어요.","haruga jeongmal gireoyo.","The day is really long.","El día es muy largo."]
+],
+[
+["좋다","jota","To be good","Ser bueno","Dictionary form of 'to be good/nice'. Polite: 좋아요 (joayo). Also means 'to like'.","Forma de diccionario de 'ser bueno'. Cortés: 좋아요 (joayo). También 'gustar'.","날씨가 좋아요.","nalssiga joayo.","The weather is good.","Hace buen tiempo."],
+["나쁘다","nappeuda","To be bad","Ser malo","Dictionary form of 'to be bad'. Polite: 나빠요 (nappayo).","Forma de diccionario de 'ser malo'. Cortés: 나빠요 (nappayo).","기분이 나빠요.","gibuni nappayo.","I'm in a bad mood.","Estoy de mal humor."],
+["크다","keuda","To be big","Ser grande","Dictionary form of 'to be big'. Polite: 커요 (keoyo).","Forma de diccionario de 'ser grande'. Cortés: 커요 (keoyo).","이 가방이 커요.","i gabangi keoyo.","This bag is big.","Esta bolsa es grande."],
+["작다","jakda","To be small","Ser pequeño","Dictionary form of 'to be small'. Polite: 작아요 (jagayo).","Forma de diccionario de 'ser pequeño'. Cortés: 작아요 (jagayo).","신발이 작아요.","sinbari jagayo.","The shoes are small.","Los zapatos son pequeños."],
+["많다","manta","To be many / much","Ser mucho","Dictionary form of 'to be a lot'. Polite: 많아요 (manayo).","Forma de diccionario de 'haber mucho'. Cortés: 많아요 (manayo).","사람이 많아요.","sarami manayo.","There are many people.","Hay mucha gente."],
+["적다","jeokda","To be few / little","Ser poco","Dictionary form of 'to be few'. Polite: 적어요 (jeogeoyo).","Forma de diccionario de 'ser poco'. Cortés: 적어요 (jeogeoyo).","돈이 적어요.","doni jeogeoyo.","I have little money.","Tengo poco dinero."],
+["비싸다","bissada","To be expensive","Ser caro","Dictionary form of 'to be expensive'. Polite: 비싸요 (bissayo).","Forma de diccionario de 'ser caro'. Cortés: 비싸요 (bissayo).","이 커피는 비싸요.","i keopineun bissayo.","This coffee is expensive.","Este café es caro."],
+["싸다","ssada","To be cheap","Ser barato","Dictionary form of 'to be cheap'. Polite: 싸요 (ssayo).","Forma de diccionario de 'ser barato'. Cortés: 싸요 (ssayo).","시장이 더 싸요.","sijangi deo ssayo.","The market is cheaper.","El mercado es más barato."],
+["맛있다","masitda","To be delicious","Estar delicioso","A must-know food word. Polite: 맛있어요 (masisseoyo). Opposite: 맛없다.","Palabra clave para comida. Cortés: 맛있어요 (masisseoyo). Contrario: 맛없다.","이 음식이 맛있어요.","i eumsigi masisseoyo.","This food is delicious.","Esta comida está deliciosa."],
+["맛없다","madeopda","To taste bad","Estar malo (sabor)","Means food tastes bad. Polite: 맛없어요 (madeopseoyo).","Significa que la comida sabe mal. Cortés: 맛없어요 (madeopseoyo).","이 빵은 맛없어요.","i ppangeun madeopseoyo.","This bread tastes bad.","Este pan sabe mal."],
+["예쁘다","yeppeuda","To be pretty","Ser bonito","Dictionary form of 'to be pretty'. Polite: 예뻐요 (yeppeoyo).","Forma de diccionario de 'ser bonito'. Cortés: 예뻐요 (yeppeoyo).","꽃이 예뻐요.","kkochi yeppeoyo.","The flower is pretty.","La flor es bonita."],
+["멋있다","meositda","To be cool / stylish","Ser genial","Used for someone or something cool/impressive. Polite: 멋있어요 (meosisseoyo).","Se usa para algo o alguien genial/impresionante. Cortés: 멋있어요 (meosisseoyo).","그 가수가 멋있어요.","geu gasuga meosisseoyo.","That singer is cool.","Ese cantante es genial."],
+["쉽다","swipda","To be easy","Ser fácil","Dictionary form of 'to be easy'. Polite: 쉬워요 (swiwoyo).","Forma de diccionario de 'ser fácil'. Cortés: 쉬워요 (swiwoyo).","이 문제는 쉬워요.","i munjeneun swiwoyo.","This problem is easy.","Este problema es fácil."],
+["어렵다","eoryeopda","To be difficult","Ser difícil","Dictionary form of 'to be hard'. Polite: 어려워요 (eoryeowoyo).","Forma de diccionario de 'ser difícil'. Cortés: 어려워요 (eoryeowoyo).","한국어가 어려워요.","hangugeoga eoryeowoyo.","Korean is difficult.","El coreano es difícil."],
+["바쁘다","bappeuda","To be busy","Estar ocupado","Dictionary form of 'to be busy'. Polite: 바빠요 (bappayo).","Forma de diccionario de 'estar ocupado'. Cortés: 바빠요 (bappayo).","오늘 너무 바빠요.","oneul neomu bappayo.","I'm too busy today.","Hoy estoy muy ocupado."],
+["기쁘다","gippeuda","To be happy / glad","Estar contento","Feeling glad or joyful. Polite: 기뻐요 (gippeoyo).","Sentirse alegre. Cortés: 기뻐요 (gippeoyo).","합격해서 기뻐요.","hapgyeokhaeseo gippeoyo.","I'm glad I passed.","Estoy contento de aprobar."],
+["슬프다","seulpeuda","To be sad","Estar triste","Feeling sad. Polite: 슬퍼요 (seulpeoyo).","Sentirse triste. Cortés: 슬퍼요 (seulpeoyo).","영화가 슬퍼요.","yeonghwaga seulpeoyo.","The movie is sad.","La película es triste."],
+["화나다","hwanada","To get angry","Enojarse","To become angry. Polite: 화나요 (hwanayo). '화났어요' = I got angry.","Enojarse. Cortés: 화나요 (hwanayo). '화났어요' = me enojé.","왜 화났어요?","wae hwanasseoyo?","Why are you angry?","¿Por qué estás enojado?"],
+["피곤하다","pigonhada","To be tired","Estar cansado","Feeling tired. Polite: 피곤해요 (pigonhaeyo).","Sentirse cansado. Cortés: 피곤해요 (pigonhaeyo).","오늘 정말 피곤해요.","oneul jeongmal pigonhaeyo.","I'm really tired today.","Hoy estoy muy cansado."],
+["배고프다","baegopeuda","To be hungry","Tener hambre","Feeling hungry. Polite: 배고파요 (baegopayo). 배 (belly) + 고프다.","Tener hambre. Cortés: 배고파요 (baegopayo). 배 (barriga) + 고프다.","배고파요. 밥 먹어요.","baegopayo. bap meogeoyo.","I'm hungry. Let's eat.","Tengo hambre. Comamos."],
+["아프다","apeuda","To be sick / hurt","Estar enfermo / doler","Means sick or in pain. Polite: 아파요 (apayo). '머리가 아파요' = My head hurts.","Estar enfermo o doler. Cortés: 아파요 (apayo). '머리가 아파요' = Me duele la cabeza.","배가 아파요.","baega apayo.","My stomach hurts.","Me duele el estómago."],
+["재미있다","jaemiitda","To be fun / interesting","Ser divertido","Fun or interesting. Polite: 재미있어요 (jaemiisseoyo).","Divertido o interesante. Cortés: 재미있어요 (jaemiisseoyo).","이 게임이 재미있어요.","i geimi jaemiisseoyo.","This game is fun.","Este juego es divertido."],
+["많이","mani","A lot / much","Mucho","An adverb meaning 'a lot'. '많이 먹어요' = I eat a lot.","Un adverbio: 'mucho'. '많이 먹어요' = Como mucho.","물을 많이 마셔요.","mureul mani masyeoyo.","I drink a lot of water.","Bebo mucha agua."],
+["조금","jogeum","A little","Un poco","A little / a bit. Casual short form: 좀 (jom).","Un poco. Forma corta informal: 좀 (jom).","조금만 주세요.","jogeumman juseyo.","Just a little, please.","Solo un poco, por favor."],
+["너무","neomu","Too / very","Demasiado / muy","Means 'too' or 'very'. '너무 좋아요' = I really like it.","Significa 'demasiado' o 'muy'. '너무 좋아요' = Me gusta mucho.","날씨가 너무 더워요.","nalssiga neomu deowoyo.","The weather is too hot.","Hace demasiado calor."],
+["정말","jeongmal","Really","De verdad","Means 'really' or 'truly'. Used for emphasis. Similar to 진짜 (jinjja).","Significa 'de verdad' o 'realmente'. Para enfatizar. Similar a 진짜 (jinjja).","정말 고마워요.","jeongmal gomawoyo.","Thank you really.","Muchas gracias de verdad."],
+["빨리","ppalli","Quickly / fast","Rápido","An adverb meaning 'quickly'. '빨리 가요' = Let's go fast.","Un adverbio: 'rápido'. '빨리 가요' = Vamos rápido.","빨리 오세요.","ppalli oseyo.","Please come quickly.","Venga rápido, por favor."],
+["천천히","cheoncheonhi","Slowly","Despacio","An adverb meaning 'slowly'. '천천히 말해 주세요' = Please speak slowly.","Un adverbio: 'despacio'. '천천히 말해 주세요' = Hable despacio, por favor.","천천히 말해 주세요.","cheoncheonhi malhae juseyo.","Please speak slowly.","Hable despacio, por favor."],
+["같이","gachi","Together","Juntos","Means 'together'. '같이 가요' = Let's go together. (The ㅌ sounds like 'ch' here.)","Significa 'juntos'. '같이 가요' = Vamos juntos. (La ㅌ suena como 'ch' aquí.)","같이 점심 먹어요.","gachi jeomsim meogeoyo.","Let's have lunch together.","Almorcemos juntos."],
+["맞다","matda","To be right / correct","Ser correcto","Means 'to be correct'. Polite: 맞아요 (majayo). '맞아요!' = That's right!","Significa 'ser correcto'. Cortés: 맞아요 (majayo). '맞아요!' = ¡Así es!","네, 맞아요.","ne, majayo.","Yes, that's right.","Sí, es correcto."]
+],
+[
+["색깔","saekkkal","Color","Color","The general word for color. '무슨 색깔이에요?' = What color is it?","La palabra general para color. '무슨 색깔이에요?' = ¿De qué color es?","무슨 색깔을 좋아해요?","museun saekkkareul joahaeyo?","What color do you like?","¿Qué color te gusta?"],
+["빨간색","ppalgansaek","Red","Rojo","The color red. Colors often end in 색 (color): 파란색, 노란색.","El color rojo. Los colores suelen terminar en 색: 파란색, 노란색.","빨간색 사과예요.","ppalgansaek sagwayeyo.","It's a red apple.","Es una manzana roja."],
+["파란색","paransaek","Blue","Azul","The color blue. Also covers some shades of green in traditional usage.","El color azul. También abarca algunos verdes en el uso tradicional.","하늘은 파란색이에요.","haneureun paransaegieyo.","The sky is blue.","El cielo es azul."],
+["노란색","noransaek","Yellow","Amarillo","The color yellow.","El color amarillo.","노란색 꽃이 예뻐요.","noransaek kkochi yeppeoyo.","The yellow flower is pretty.","La flor amarilla es bonita."],
+["초록색","choroksaek","Green","Verde","The color green. Also called 녹색 (noksaek).","El color verde. También se dice 녹색 (noksaek).","나무는 초록색이에요.","namuneun choroksaegieyo.","Trees are green.","Los árboles son verdes."],
+["하얀색","hayansaek","White","Blanco","The color white. Also 흰색 (huinsaek).","El color blanco. También 흰색 (huinsaek).","눈은 하얀색이에요.","nuneun hayansaegieyo.","Snow is white.","La nieve es blanca."],
+["검은색","geomeunsaek","Black","Negro","The color black. Also 까만색 (kkamansaek).","El color negro. También 까만색 (kkamansaek).","검은색 가방이에요.","geomeunsaek gabangieyo.","It's a black bag.","Es una bolsa negra."],
+["몸","mom","Body","Cuerpo","The whole body. '몸이 아파요' = My body hurts / I feel sick.","Todo el cuerpo. '몸이 아파요' = Me duele el cuerpo / Me siento mal.","몸이 안 좋아요.","momi an joayo.","I don't feel well.","No me siento bien."],
+["머리","meori","Head / Hair","Cabeza / Pelo","Means both 'head' and 'hair'. '머리가 아파요' = My head hurts.","Significa 'cabeza' y 'pelo'. '머리가 아파요' = Me duele la cabeza.","머리가 길어요.","meoriga gireoyo.","My hair is long.","Tengo el pelo largo."],
+["얼굴","eolgul","Face","Cara","The face. '얼굴이 예뻐요' = (Your) face is pretty.","La cara. '얼굴이 예뻐요' = Tu cara es bonita.","얼굴을 씻어요.","eolgureul ssiseoyo.","I wash my face.","Me lavo la cara."],
+["눈","nun","Eye","Ojo","눈 means 'eye' (and also 'snow'). '눈이 커요' = (Your) eyes are big.","눈 significa 'ojo' (y también 'nieve'). '눈이 커요' = Tienes los ojos grandes.","눈이 아파요.","nuni apayo.","My eyes hurt.","Me duelen los ojos."],
+["코","ko","Nose","Nariz","The nose.","La nariz.","코가 막혔어요.","koga makhyeosseoyo.","My nose is stuffy.","Tengo la nariz tapada."],
+["입","ip","Mouth","Boca","The mouth. '입을 벌려요' = Open your mouth.","La boca. '입을 벌려요' = Abre la boca.","입을 크게 벌리세요.","ibeul keuge beolliseyo.","Open your mouth wide.","Abra bien la boca."],
+["귀","gwi","Ear","Oreja","The ear. '귀가 아파요' = My ear hurts.","La oreja. '귀가 아파요' = Me duele la oreja.","귀가 잘 안 들려요.","gwiga jal an deullyeoyo.","I can't hear well.","No oigo bien."],
+["손","son","Hand","Mano","The hand. '손을 씻어요' = I wash my hands.","La mano. '손을 씻어요' = Me lavo las manos.","손을 깨끗이 씻어요.","soneul kkaekkeusi ssiseoyo.","I wash my hands clean.","Me lavo bien las manos."],
+["발","bal","Foot","Pie","The foot. Not to be confused with 팔 (arm).","El pie. No confundir con 팔 (brazo).","발이 아파요.","bari apayo.","My feet hurt.","Me duelen los pies."],
+["배","bae","Stomach / Belly","Estómago / Barriga","배 means 'stomach' (also 'pear' and 'boat'). '배가 고파요' = I'm hungry.","배 significa 'estómago' (también 'pera' y 'barco'). '배가 고파요' = Tengo hambre.","배가 아파요.","baega apayo.","My stomach hurts.","Me duele el estómago."],
+["옷","ot","Clothes","Ropa","The general word for clothes. '옷을 입어요' = I put on clothes.","La palabra general para ropa. '옷을 입어요' = Me visto.","따뜻한 옷을 입어요.","ttaatteuthan oseul ibeoyo.","I wear warm clothes.","Llevo ropa abrigada."],
+["바지","baji","Pants / Trousers","Pantalones","Pants or trousers. Jeans are 청바지 (cheongbaji).","Pantalones. Los vaqueros son 청바지 (cheongbaji).","바지가 너무 길어요.","bajiga neomu gireoyo.","The pants are too long.","Los pantalones son muy largos."],
+["치마","chima","Skirt","Falda","A skirt.","Una falda.","치마가 예뻐요.","chimaga yeppeoyo.","The skirt is pretty.","La falda es bonita."],
+["신발","sinbal","Shoes","Zapatos","Shoes in general. '신발을 신어요' = I put on shoes.","Zapatos en general. '신발을 신어요' = Me pongo los zapatos.","새 신발을 샀어요.","sae sinbareul sasseoyo.","I bought new shoes.","Compré zapatos nuevos."],
+["모자","moja","Hat / Cap","Sombrero / Gorra","A hat or cap. '모자를 써요' = I wear a hat.","Un sombrero o gorra. '모자를 써요' = Me pongo el sombrero.","모자를 쓰세요.","mojareul sseuseyo.","Please wear a hat.","Póngase el sombrero."],
+["안경","angyeong","Glasses","Gafas","Eyeglasses. '안경을 써요' = I wear glasses.","Gafas. '안경을 써요' = Llevo gafas.","안경을 쓰고 책을 읽어요.","angyeongeul sseugo chaegeul ilgeoyo.","I read a book with glasses on.","Leo un libro con gafas."],
+["가방","gabang","Bag","Bolsa / Mochila","A bag, backpack, or handbag.","Una bolsa, mochila o bolso.","가방이 무거워요.","gabangi mugeowoyo.","The bag is heavy.","La bolsa es pesada."],
+["입다","ipda","To wear (clothes)","Ponerse (ropa)","Used for clothes on the body (shirts, pants). Polite: 입어요 (ibeoyo). Shoes use 신다, hats use 쓰다.","Para ropa del cuerpo (camisas, pantalones). Cortés: 입어요. Zapatos usan 신다; sombreros, 쓰다.","코트를 입어요.","koteureul ibeoyo.","I wear a coat.","Me pongo un abrigo."],
+["벗다","beotda","To take off (clothes)","Quitarse","To remove clothes/shoes. Polite: 벗어요 (beoseoyo).","Quitarse ropa/zapatos. Cortés: 벗어요 (beoseoyo).","신발을 벗으세요.","sinbareul beoseuseyo.","Please take off your shoes.","Quítese los zapatos."],
+["크다","keuda","To be big","Ser grande","Already in Day 4 — here for clothing size. '사이즈가 커요' = The size is big.","Ya en el Día 4 — aquí para tallas. '사이즈가 커요' = La talla es grande.","이 옷이 좀 커요.","i osi jom keoyo.","These clothes are a bit big.","Esta ropa es un poco grande."],
+["깨끗하다","kkaekkeuthada","To be clean","Estar limpio","Means clean/tidy. Polite: 깨끗해요 (kkaekkeuthaeyo). Opposite: 더럽다.","Significa limpio/ordenado. Cortés: 깨끗해요. Contrario: 더럽다.","방이 깨끗해요.","bangi kkaekkeuthaeyo.","The room is clean.","La habitación está limpia."],
+["더럽다","deoreopda","To be dirty","Estar sucio","Means dirty. Polite: 더러워요 (deoreowoyo).","Significa sucio. Cortés: 더러워요 (deoreowoyo).","손이 더러워요.","soni deoreowoyo.","My hands are dirty.","Tengo las manos sucias."],
+["치약","chiyak","Toothpaste","Pasta de dientes","Toothpaste. 치(chi)=tooth + 약(yak)=medicine. Brush teeth: 이를 닦다.","Pasta de dientes. 치(chi)=diente + 약(yak)=medicina. Cepillarse: 이를 닦다.","치약이 다 떨어졌어요.","chiyagi da tteoreojyeosseoyo.","The toothpaste ran out.","Se acabó la pasta de dientes."]
+],
+[
+["위","wi","Up / Above","Arriba / Encima","Position word for 'above/on top'. '책상 위' = on the desk.","Palabra de posición: 'arriba/encima'. '책상 위' = sobre el escritorio.","책이 책상 위에 있어요.","chaegi chaeksang wie isseoyo.","The book is on the desk.","El libro está sobre el escritorio."],
+["아래","arae","Down / Below","Abajo / Debajo","Position word for 'below/under'. Also 밑 (mit).","Palabra de posición: 'abajo/debajo'. También 밑 (mit).","고양이가 의자 아래에 있어요.","goyangiga uija araee isseoyo.","The cat is under the chair.","El gato está debajo de la silla."],
+["앞","ap","Front","Delante","Position word for 'in front'. '집 앞' = in front of the house.","Palabra de posición: 'delante'. '집 앞' = delante de la casa.","학교 앞에서 만나요.","hakgyo apeseo mannayo.","Let's meet in front of the school.","Quedamos delante de la escuela."],
+["뒤","dwi","Back / Behind","Detrás","Position word for 'behind'. '뒤를 봐요' = Look behind.","Palabra de posición: 'detrás'. '뒤를 봐요' = Mira atrás.","집 뒤에 산이 있어요.","jip dwie sani isseoyo.","There's a mountain behind the house.","Hay una montaña detrás de la casa."],
+["옆","yeop","Side / Next to","Al lado","Position word for 'beside/next to'. '제 옆에 앉으세요' = Sit next to me.","Palabra de posición: 'al lado'. '제 옆에 앉으세요' = Siéntate a mi lado.","은행 옆에 카페가 있어요.","eunhaeng yeope kapega isseoyo.","There's a cafe next to the bank.","Hay un café al lado del banco."],
+["안","an","Inside","Dentro","Position word for 'inside'. '가방 안' = inside the bag. Also means 'not' as a prefix.","Palabra de posición: 'dentro'. '가방 안' = dentro de la bolsa. También 'no' como prefijo.","가방 안에 책이 있어요.","gabang ane chaegi isseoyo.","There's a book inside the bag.","Hay un libro dentro de la bolsa."],
+["밖","bak","Outside","Fuera","Position word for 'outside'. '밖에 나가요' = I go outside.","Palabra de posición: 'fuera'. '밖에 나가요' = Salgo fuera.","밖에 비가 와요.","bakke biga wayo.","It's raining outside.","Está lloviendo fuera."],
+["오른쪽","oreunjjok","Right side","Derecha","The right side. '오른쪽으로 가세요' = Go to the right.","El lado derecho. '오른쪽으로 가세요' = Vaya a la derecha.","오른쪽으로 도세요.","oreunjjogeuro doseyo.","Turn right.","Gire a la derecha."],
+["왼쪽","oenjjok","Left side","Izquierda","The left side. '왼쪽에 있어요' = It's on the left.","El lado izquierdo. '왼쪽에 있어요' = Está a la izquierda.","화장실은 왼쪽에 있어요.","hwajangsireun oenjjoge isseoyo.","The restroom is on the left.","El baño está a la izquierda."],
+["가운데","gaunde","Middle / Center","En medio","The middle or center. '가운데에 앉아요' = I sit in the middle.","El medio o centro. '가운데에 앉아요' = Me siento en el medio.","가운데에 앉으세요.","gaundee anjeuseyo.","Please sit in the middle.","Siéntese en el medio."],
+["근처","geuncheo","Nearby / Vicinity","Cerca","Means 'nearby'. '집 근처' = near the house.","Significa 'cerca'. '집 근처' = cerca de casa.","근처에 식당이 있어요?","geuncheoe sikdangi isseoyo?","Is there a restaurant nearby?","¿Hay un restaurante cerca?"],
+["길","gil","Road / Street / Way","Calle / Camino","A road, street, or way. '길을 잃었어요' = I'm lost.","Una calle, camino o ruta. '길을 잃었어요' = Estoy perdido.","이 길로 가세요.","i gillo gaseyo.","Go this way.","Vaya por este camino."],
+["지하철","jihacheol","Subway / Metro","Metro","The subway. 지하(underground) + 철(rail). Common in Korean cities.","El metro. 지하(subterráneo) + 철(riel). Común en las ciudades coreanas.","지하철로 가요.","jihacheollo gayo.","I go by subway.","Voy en metro."],
+["버스","beoseu","Bus","Autobús","A bus (loanword). '버스를 타요' = I take the bus.","Un autobús (préstamo). '버스를 타요' = Tomo el autobús.","버스가 안 와요.","beoseuga an wayo.","The bus isn't coming.","El autobús no viene."],
+["기차","gicha","Train","Tren","A train (for longer distances). City rail is 지하철.","Un tren (distancias largas). El tren urbano es 지하철.","기차로 부산에 가요.","gicharo busane gayo.","I go to Busan by train.","Voy a Busan en tren."],
+["택시","taeksi","Taxi","Taxi","A taxi (loanword). '택시를 타요' = I take a taxi.","Un taxi (préstamo). '택시를 타요' = Tomo un taxi.","택시를 불러 주세요.","taeksireul bulleo juseyo.","Please call a taxi.","Llame a un taxi, por favor."],
+["비행기","bihaenggi","Airplane","Avión","An airplane. '비행기를 타요' = I take a plane.","Un avión. '비행기를 타요' = Tomo un avión.","비행기로 여행해요.","bihaenggiro yeohaenghaeyo.","I travel by airplane.","Viajo en avión."],
+["자동차","jadongcha","Car / Automobile","Coche / Automóvil","A car. Often shortened to 차 (cha).","Un coche. A menudo se acorta a 차 (cha).","자동차가 빨라요.","jadongchaga ppallayo.","The car is fast.","El coche es rápido."],
+["자전거","jajeongeo","Bicycle","Bicicleta","A bicycle. '자전거를 타요' = I ride a bike.","Una bicicleta. '자전거를 타요' = Monto en bicicleta.","공원에서 자전거를 타요.","gongwoneseo jajeongeoreul tayo.","I ride a bike in the park.","Monto en bici en el parque."],
+["역","yeok","Station","Estación","A train/subway station. '서울역' = Seoul Station.","Una estación de tren/metro. '서울역' = Estación de Seúl.","다음 역에서 내려요.","daeum yeogeseo naeryeoyo.","I get off at the next station.","Bajo en la próxima estación."],
+["공항","gonghang","Airport","Aeropuerto","An airport. 공(air) + 항(port).","Un aeropuerto. 공(aire) + 항(puerto).","공항에서 친구를 만나요.","gonghangeseo chingureul mannayo.","I meet a friend at the airport.","Veo a un amigo en el aeropuerto."],
+["타다","tada","To ride / get on","Subir / montar","To board a vehicle. Polite: 타요 (tayo). '버스를 타요' = I take the bus.","Subir a un vehículo. Cortés: 타요. '버스를 타요' = Tomo el autobús.","지하철을 타요.","jihacheoreul tayo.","I take the subway.","Tomo el metro."],
+["내리다","naerida","To get off","Bajar","To exit a vehicle, or rain/snow falling. Polite: 내려요 (naeryeoyo).","Bajar de un vehículo, o caer lluvia/nieve. Cortés: 내려요.","여기에서 내려요.","yeogieseo naeryeoyo.","I get off here.","Me bajo aquí."],
+["걷다","geotda","To walk","Caminar","To walk. Polite: 걸어요 (georeoyo). The ㄷ changes to ㄹ when conjugated.","Caminar. Cortés: 걸어요 (georeoyo). La ㄷ cambia a ㄹ al conjugar.","공원을 걸어요.","gongwoneul georeoyo.","I walk in the park.","Camino por el parque."],
+["도착하다","dochakhada","To arrive","Llegar","To arrive. Polite: 도착해요 (dochakhaeyo). Opposite: 출발하다 (to depart).","Llegar. Cortés: 도착해요. Contrario: 출발하다 (salir).","곧 도착해요.","got dochakhaeyo.","I'll arrive soon.","Llego pronto."],
+["출발하다","chulbalhada","To depart / leave","Salir / partir","To depart/start a journey. Polite: 출발해요 (chulbalhaeyo).","Salir/empezar un viaje. Cortés: 출발해요 (chulbalhaeyo).","기차가 곧 출발해요.","gichaga got chulbalhaeyo.","The train departs soon.","El tren sale pronto."],
+["빠르다","ppareuda","To be fast","Ser rápido","To be fast. Polite: 빨라요 (ppallayo). Opposite: 느리다.","Ser rápido. Cortés: 빨라요 (ppallayo). Contrario: 느리다.","이 기차는 빨라요.","i gichaneun ppallayo.","This train is fast.","Este tren es rápido."],
+["멀다","meolda","To be far","Estar lejos","To be far. Polite: 멀어요 (meoreoyo). Opposite: 가깝다 (to be near).","Estar lejos. Cortés: 멀어요 (meoreoyo). Contrario: 가깝다 (cerca).","집이 회사에서 멀어요.","jibi hoesaeseo meoreoyo.","Home is far from work.","Mi casa está lejos del trabajo."],
+["가깝다","gakkapda","To be near / close","Estar cerca","To be close. Polite: 가까워요 (gakkawoyo).","Estar cerca. Cortés: 가까워요 (gakkawoyo).","역이 가까워요.","yeogi gakkawoyo.","The station is close.","La estación está cerca."],
+["여기","yeogi","Here","Aquí","Means 'here'. With 거기 (there) and 저기 (over there). '여기요!' calls a waiter.","Significa 'aquí'. Con 거기 (ahí) y 저기 (allá). '여기요!' llama al camarero.","여기가 어디예요?","yeogiga eodiyeyo?","Where is this place?","¿Dónde está este lugar?"]
+],
+[
+["만나다","mannada","To meet","Encontrarse / conocer","To meet someone. Polite: 만나요 (mannayo). '만나서 반가워요' = Nice to meet you.","Encontrarse con alguien. Cortés: 만나요. '만나서 반가워요' = Encantado de conocerte.","친구를 만나요.","chingureul mannayo.","I meet a friend.","Me encuentro con un amigo."],
+["공부하다","gongbuhada","To study","Estudiar","To study. Polite: 공부해요 (gongbuhaeyo). 공부 (study) + 하다 (to do).","Estudiar. Cortés: 공부해요. 공부 (estudio) + 하다 (hacer).","한국어를 공부해요.","hangugeoreul gongbuhaeyo.","I study Korean.","Estudio coreano."],
+["일하다","ilhada","To work","Trabajar","To work. Polite: 일해요 (ilhaeyo). 일 (work) + 하다 (to do).","Trabajar. Cortés: 일해요. 일 (trabajo) + 하다 (hacer).","회사에서 일해요.","hoesaeseo ilhaeyo.","I work at a company.","Trabajo en una empresa."],
+["쉬다","swida","To rest","Descansar","To rest. Polite: 쉬어요 (swieoyo). '주말에 쉬어요' = I rest on weekends.","Descansar. Cortés: 쉬어요. '주말에 쉬어요' = Descanso los fines de semana.","집에서 쉬어요.","jibeseo swieoyo.","I rest at home.","Descanso en casa."],
+["놀다","nolda","To play / hang out","Jugar / pasar el rato","To play or hang out. Polite: 놀아요 (norayo). Used by adults too, meaning 'to hang out'.","Jugar o pasar el rato. Cortés: 놀아요. También lo usan adultos: 'pasar el rato'.","친구들과 놀아요.","chingudeulgwa norayo.","I hang out with friends.","Paso el rato con amigos."],
+["말하다","malhada","To speak / say","Hablar / decir","To speak or say. Polite: 말해요 (malhaeyo). 말 (words) + 하다.","Hablar o decir. Cortés: 말해요. 말 (palabras) + 하다.","천천히 말해 주세요.","cheoncheonhi malhae juseyo.","Please speak slowly.","Hable despacio, por favor."],
+["듣다","deutda","To listen / hear","Escuchar / oír","To listen. Polite: 들어요 (deureoyo). The ㄷ becomes ㄹ when conjugated.","Escuchar. Cortés: 들어요. La ㄷ se vuelve ㄹ al conjugar.","음악을 들어요.","eumageul deureoyo.","I listen to music.","Escucho música."],
+["읽다","ikda","To read","Leer","To read. Polite: 읽어요 (ilgeoyo).","Leer. Cortés: 읽어요 (ilgeoyo).","책을 읽어요.","chaegeul ilgeoyo.","I read a book.","Leo un libro."],
+["쓰다","sseuda","To write / use","Escribir / usar","쓰다 means both 'to write' and 'to use'. Polite: 써요 (sseoyo).","쓰다 significa 'escribir' y 'usar'. Cortés: 써요 (sseoyo).","편지를 써요.","pyeonjireul sseoyo.","I write a letter.","Escribo una carta."],
+["배우다","baeuda","To learn","Aprender","To learn. Polite: 배워요 (baewoyo). '한국어를 배워요' = I learn Korean.","Aprender. Cortés: 배워요. '한국어를 배워요' = Aprendo coreano.","태권도를 배워요.","taegwondoreul baewoyo.","I learn Taekwondo.","Aprendo Taekwondo."],
+["가르치다","gareuchida","To teach","Enseñar","To teach. Polite: 가르쳐요 (gareuchyeoyo).","Enseñar. Cortés: 가르쳐요 (gareuchyeoyo).","영어를 가르쳐요.","yeongeoreul gareuchyeoyo.","I teach English.","Enseño inglés."],
+["알다","alda","To know","Saber / conocer","To know. Polite: 알아요 (arayo). '알겠어요' = I understand / got it.","Saber/conocer. Cortés: 알아요. '알겠어요' = Entiendo / vale.","그 사람을 알아요.","geu sarameul arayo.","I know that person.","Conozco a esa persona."],
+["모르다","moreuda","To not know","No saber","The opposite of 알다. Polite: 몰라요 (mollayo). '잘 몰라요' = I'm not sure.","Lo contrario de 알다. Cortés: 몰라요. '잘 몰라요' = No estoy seguro.","답을 몰라요.","dabeul mollayo.","I don't know the answer.","No sé la respuesta."],
+["생각하다","saenggakhada","To think","Pensar","To think. Polite: 생각해요 (saenggakhaeyo). 생각 (thought) + 하다.","Pensar. Cortés: 생각해요. 생각 (pensamiento) + 하다.","좋은 생각이에요.","joeun saenggagieyo.","That's a good idea.","Es una buena idea."],
+["좋아하다","joahada","To like","Gustar","To like something. Polite: 좋아해요 (joahaeyo). Different from 좋다 (to be good).","Gustar algo. Cortés: 좋아해요. Distinto de 좋다 (ser bueno).","저는 커피를 좋아해요.","jeoneun keopireul joahaeyo.","I like coffee.","Me gusta el café."],
+["싫어하다","sireohada","To dislike","No gustar","To dislike. Polite: 싫어해요 (sireohaeyo). Opposite of 좋아하다.","No gustar. Cortés: 싫어해요. Contrario de 좋아하다.","저는 추운 날씨를 싫어해요.","jeoneun chuun nalssireul sireohaeyo.","I dislike cold weather.","No me gusta el clima frío."],
+["원하다","wonhada","To want","Querer","To want (something). Polite: 원해요 (wonhaeyo). For 'want to do', use -고 싶어요.","Querer (algo). Cortés: 원해요. Para 'querer hacer', usa -고 싶어요.","무엇을 원해요?","mueoseul wonhaeyo?","What do you want?","¿Qué quieres?"],
+["기다리다","gidarida","To wait","Esperar","To wait. Polite: 기다려요 (gidaryeoyo). '잠깐만 기다리세요' = Please wait a moment.","Esperar. Cortés: 기다려요. '잠깐만 기다리세요' = Espere un momento.","여기서 기다려요.","yeogiseo gidaryeoyo.","I wait here.","Espero aquí."],
+["찾다","chatda","To find / look for","Buscar / encontrar","To look for or find. Polite: 찾아요 (chajayo).","Buscar o encontrar. Cortés: 찾아요 (chajayo).","열쇠를 찾아요.","yeolsoereul chajayo.","I'm looking for my keys.","Busco mis llaves."],
+["열다","yeolda","To open","Abrir","To open. Polite: 열어요 (yeoreoyo). Opposite: 닫다 (to close).","Abrir. Cortés: 열어요. Contrario: 닫다 (cerrar).","창문을 열어요.","changmuneul yeoreoyo.","I open the window.","Abro la ventana."],
+["닫다","datda","To close","Cerrar","To close. Polite: 닫아요 (dadayo).","Cerrar. Cortés: 닫아요 (dadayo).","문을 닫아 주세요.","muneul dada juseyo.","Please close the door.","Cierre la puerta, por favor."],
+["시작하다","sijakhada","To start / begin","Empezar","To start. Polite: 시작해요 (sijakhaeyo). Opposite: 끝나다 (to end).","Empezar. Cortés: 시작해요. Contrario: 끝나다 (terminar).","수업을 시작해요.","sueobeul sijakhaeyo.","The class starts.","La clase empieza."],
+["끝나다","kkeunnada","To end / finish","Terminar","To end (by itself). Polite: 끝나요 (kkeunnayo). '수업이 끝났어요' = Class is over.","Terminar (por sí mismo). Cortés: 끝나요. '수업이 끝났어요' = La clase terminó.","영화가 끝났어요.","yeonghwaga kkeunnasseoyo.","The movie ended.","La película terminó."],
+["주다","juda","To give","Dar","To give. Polite: 줘요 (jwoyo). The request form 주세요 = please give me.","Dar. Cortés: 줘요. La forma de petición 주세요 = deme por favor.","선물을 줘요.","seonmureul jwoyo.","I give a gift.","Doy un regalo."],
+["받다","batda","To receive / get","Recibir","To receive. Polite: 받아요 (badayo). Opposite of 주다.","Recibir. Cortés: 받아요. Contrario de 주다.","선물을 받았어요.","seonmureul badasseoyo.","I received a gift.","Recibí un regalo."],
+["만들다","mandeulda","To make","Hacer / crear","To make/create. Polite: 만들어요 (mandeureoyo).","Hacer/crear. Cortés: 만들어요 (mandeureoyo).","케이크를 만들어요.","keikeureul mandeureoyo.","I make a cake.","Hago un pastel."],
+["전화하다","jeonhwahada","To call (phone)","Llamar (teléfono)","To make a phone call. Polite: 전화해요 (jeonhwahaeyo). 전화 (phone) + 하다.","Hacer una llamada. Cortés: 전화해요. 전화 (teléfono) + 하다.","나중에 전화할게요.","najunge jeonhwahalgeyo.","I'll call you later.","Te llamo luego."],
+["운동하다","undonghada","To exercise","Hacer ejercicio","To exercise. Polite: 운동해요 (undonghaeyo). 운동 (exercise) + 하다.","Hacer ejercicio. Cortés: 운동해요. 운동 (ejercicio) + 하다.","아침마다 운동해요.","achimmada undonghaeyo.","I exercise every morning.","Hago ejercicio cada mañana."],
+["요리하다","yorihada","To cook","Cocinar","To cook. Polite: 요리해요 (yorihaeyo). 요리 (cooking) + 하다.","Cocinar. Cortés: 요리해요. 요리 (cocina) + 하다.","저녁을 요리해요.","jeonyeogeul yorihaeyo.","I cook dinner.","Cocino la cena."],
+["청소하다","cheongsohada","To clean","Limpiar","To clean (a place). Polite: 청소해요 (cheongsohaeyo). 청소 (cleaning) + 하다.","Limpiar (un lugar). Cortés: 청소해요. 청소 (limpieza) + 하다.","방을 청소해요.","bangeul cheongsohaeyo.","I clean my room.","Limpio mi habitación."]
+],
+[
+["직업","jigeop","Job / Occupation","Trabajo / Profesión","The word for one's job or occupation. '직업이 뭐예요?' = What's your job?","La palabra para el oficio o profesión. '직업이 뭐예요?' = ¿En qué trabajas?","직업이 뭐예요?","jigeobi mwoyeyo?","What is your job?","¿Cuál es tu trabajo?"],
+["의사","uisa","Doctor","Médico","A medical doctor. Works at a 병원 (hospital).","Un médico. Trabaja en un 병원 (hospital).","제 형은 의사예요.","je hyeongeun uisayeyo.","My older brother is a doctor.","Mi hermano mayor es médico."],
+["간호사","ganhosa","Nurse","Enfermero/a","A nurse. Works alongside an 의사 (doctor).","Un enfermero/a. Trabaja junto al 의사 (médico).","간호사가 친절해요.","ganhosaga chinjeolhaeyo.","The nurse is kind.","El enfermero es amable."],
+["경찰","gyeongchal","Police","Policía","Police or a police officer. '경찰을 불러요' = Call the police.","Policía o agente. '경찰을 불러요' = Llama a la policía.","경찰이 도와줬어요.","gyeongchari dowajwosseoyo.","The police helped me.","La policía me ayudó."],
+["요리사","yorisa","Cook / Chef","Cocinero/a","A cook or chef. From 요리 (cooking) + 사 (person).","Un cocinero/a. De 요리 (cocina) + 사 (persona).","요리사가 음식을 만들어요.","yorisaga eumsigeul mandeureoyo.","The chef makes food.","El cocinero prepara la comida."],
+["회사원","hoesawon","Office worker","Oficinista","A company/office worker. 회사 (company) + 원 (member).","Un empleado de oficina. 회사 (empresa) + 원 (miembro).","저는 회사원이에요.","jeoneun hoesawonieyo.","I am an office worker.","Soy oficinista."],
+["학생","haksaeng","Student","Estudiante","A student (already seen in Day 1, key job-related word).","Un estudiante (visto en el Día 1, palabra clave de oficios).","대학생이에요.","daehaksaengieyo.","I am a university student.","Soy estudiante universitario."],
+["주부","jubu","Homemaker","Ama de casa","A homemaker who manages the household.","Una persona que se encarga del hogar.","어머니는 주부예요.","eomeonineun jubuyeyo.","My mother is a homemaker.","Mi madre es ama de casa."],
+["운전사","unjeonsa","Driver","Conductor","A driver (of a bus, taxi, etc.). From 운전 (driving) + 사.","Un conductor (de autobús, taxi, etc.). De 운전 (conducir) + 사.","버스 운전사가 친절해요.","beoseu unjeonsaga chinjeolhaeyo.","The bus driver is kind.","El conductor del autobús es amable."],
+["가수","gasu","Singer","Cantante","A singer. K-pop singers are 케이팝 가수.","Un cantante. Los cantantes de K-pop son 케이팝 가수.","제가 좋아하는 가수예요.","jega joahaneun gasuyeyo.","This is the singer I like.","Es el cantante que me gusta."],
+["배우","baeu","Actor / Actress","Actor / Actriz","An actor or actress in films/dramas.","Un actor o actriz de películas/series.","그 배우는 유명해요.","geu baeuneun yumyeonghaeyo.","That actor is famous.","Ese actor es famoso."],
+["남자","namja","Man / Male","Hombre","A man or male. Boy is 남자아이 or 소년.","Un hombre o varón. Niño es 남자아이 o 소년.","저 남자는 누구예요?","jeo namjaneun nuguyeyo?","Who is that man?","¿Quién es ese hombre?"],
+["여자","yeoja","Woman / Female","Mujer","A woman or female. Girl is 여자아이 or 소녀.","Una mujer. Niña es 여자아이 o 소녀.","여자 화장실은 저기예요.","yeoja hwajangsireun jeogiyeyo.","The women's restroom is over there.","El baño de mujeres está allá."],
+["아이","ai","Child","Niño/a","A child. Casual short form: 애 (ae).","Un niño/a. Forma corta informal: 애 (ae).","아이가 웃어요.","aiga useoyo.","The child is smiling.","El niño sonríe."],
+["어른","eoreun","Adult","Adulto","An adult/grown-up. Respect for 어른 is important in Korea.","Un adulto. El respeto a los 어른 es importante en Corea.","어른을 공경해요.","eoreuneul gonggyeonghaeyo.","I respect adults.","Respeto a los adultos."],
+["할아버지","harabeoji","Grandfather","Abuelo","Grandfather. Also used politely for any elderly man.","Abuelo. También para dirigirse con respeto a un anciano.","할아버지는 건강하세요.","harabeojineun geonganghaseyo.","My grandfather is healthy.","Mi abuelo está sano."],
+["할머니","halmeoni","Grandmother","Abuela","Grandmother. Also used politely for any elderly woman.","Abuela. También para dirigirse con respeto a una anciana.","할머니 댁에 가요.","halmeoni daege gayo.","I go to my grandmother's house.","Voy a casa de mi abuela."],
+["형","hyeong","Older brother (for males)","Hermano mayor (de un hombre)","A male's older brother. Females say 오빠 (oppa).","El hermano mayor de un hombre. Las mujeres dicen 오빠 (oppa).","형이 두 명 있어요.","hyeongi du myeong isseoyo.","I have two older brothers.","Tengo dos hermanos mayores."],
+["누나","nuna","Older sister (for males)","Hermana mayor (de un hombre)","A male's older sister. Females say 언니 (eonni).","La hermana mayor de un hombre. Las mujeres dicen 언니 (eonni).","누나가 요리를 잘해요.","nunaga yorireul jalhaeyo.","My older sister cooks well.","Mi hermana mayor cocina bien."],
+["오빠","oppa","Older brother (for females)","Hermano mayor (de una mujer)","A female's older brother; also used affectionately for older male friends.","El hermano mayor de una mujer; también cariñoso para amigos mayores.","오빠랑 영화를 봐요.","opparang yeonghwareul bwayo.","I watch a movie with my older brother.","Veo una película con mi hermano mayor."],
+["언니","eonni","Older sister (for females)","Hermana mayor (de una mujer)","A female's older sister; also used for older female friends.","La hermana mayor de una mujer; también para amigas mayores.","언니가 옷을 빌려줬어요.","eonniga oseul billyeojwosseoyo.","My older sister lent me clothes.","Mi hermana mayor me prestó ropa."],
+["이름","ireum","Name","Nombre","One's name (seen in Day 1). '이름이 어떻게 되세요?' = May I have your name?","El nombre (visto en el Día 1). '이름이 어떻게 되세요?' = ¿Su nombre, por favor?","제 이름은 민수예요.","je ireumeun minsuyeyo.","My name is Minsu.","Me llamo Minsu."],
+["나이","nai","Age","Edad","One's age. '나이가 어떻게 되세요?' politely asks someone's age.","La edad. '나이가 어떻게 되세요?' pregunta la edad con cortesía.","나이가 어떻게 되세요?","naiga eotteoke doeseyo?","How old are you? (polite)","¿Cuántos años tiene? (cortés)"],
+["나라","nara","Country","País","A country/nation. '어느 나라에서 왔어요?' = Which country are you from?","Un país. '어느 나라에서 왔어요?' = ¿De qué país eres?","어느 나라에서 왔어요?","eoneu naraeseo wasseoyo?","Which country are you from?","¿De qué país eres?"],
+["한국","hanguk","Korea","Corea","South Korea. Korean (language) is 한국어, Korean (person) is 한국 사람.","Corea del Sur. El idioma es 한국어; una persona, 한국 사람.","한국에 살아요.","hanguge sarayo.","I live in Korea.","Vivo en Corea."],
+["고향","gohyang","Hometown","Pueblo natal","One's hometown. '고향이 어디예요?' = Where's your hometown?","El pueblo natal. '고향이 어디예요?' = ¿De dónde eres?","제 고향은 부산이에요.","je gohyangeun busanieyo.","My hometown is Busan.","Mi pueblo natal es Busan."],
+["회사","hoesa","Company","Empresa","A company/business. '회사에 다녀요' = I work at a company.","Una empresa. '회사에 다녀요' = Trabajo en una empresa.","회사가 서울에 있어요.","hoesaga seoure isseoyo.","The company is in Seoul.","La empresa está en Seúl."],
+["일","il","Work / Thing / Day","Trabajo / Asunto / Día","일 means 'work', 'a matter', and also 'day'/'one'. Here: work. '일이 많아요' = I have a lot of work.","일 significa 'trabajo', 'asunto' y 'día'/'uno'. Aquí: trabajo. '일이 많아요' = Tengo mucho trabajo.","오늘 일이 많아요.","oneul iri manayo.","I have a lot of work today.","Hoy tengo mucho trabajo."],
+["손님","sonnim","Guest / Customer","Cliente / Invitado","A guest or customer. Shops greet you as 손님.","Un invitado o cliente. Las tiendas te llaman 손님.","손님이 많아요.","sonnimi manayo.","There are many customers.","Hay muchos clientes."],
+["사장님","sajangnim","Boss / Owner","Jefe / Dueño","The boss or business owner. 님 adds politeness.","El jefe o dueño del negocio. 님 añade cortesía.","사장님이 친절해요.","sajangnimi chinjeolhaeyo.","The boss is kind.","El jefe es amable."]
+],
+[
+["방","bang","Room","Habitación","A room. 침실 = bedroom, 거실 = living room.","Una habitación. 침실 = dormitorio, 거실 = sala.","제 방은 깨끗해요.","je bangeun kkaekkeuthaeyo.","My room is clean.","Mi habitación está limpia."],
+["부엌","bueok","Kitchen","Cocina","The kitchen. Pronounced 'bu-eok' (final ㅋ sounds like 'k').","La cocina. Se pronuncia 'bu-eok' (la ㅋ final suena 'k').","어머니가 부엌에 계세요.","eomeoniga bueoke gyeseyo.","Mother is in the kitchen.","Mamá está en la cocina."],
+["문","mun","Door","Puerta","A door or gate. '문을 열어요' = I open the door.","Una puerta. '문을 열어요' = Abro la puerta.","문을 닫아 주세요.","muneul dada juseyo.","Please close the door.","Cierre la puerta, por favor."],
+["창문","changmun","Window","Ventana","A window. 창 (window) + 문 (door).","Una ventana. 창 (ventana) + 문 (puerta).","창문을 열어요.","changmuneul yeoreoyo.","I open the window.","Abro la ventana."],
+["의자","uija","Chair","Silla","A chair. '의자에 앉아요' = I sit on the chair.","Una silla. '의자에 앉아요' = Me siento en la silla.","의자에 앉으세요.","uijae anjeuseyo.","Please sit on the chair.","Siéntese en la silla."],
+["책상","chaeksang","Desk","Escritorio","A desk. 책 (book) + 상 (table).","Un escritorio. 책 (libro) + 상 (mesa).","책상 위에 컴퓨터가 있어요.","chaeksang wie keompyuteoga isseoyo.","There's a computer on the desk.","Hay un ordenador en el escritorio."],
+["침대","chimdae","Bed","Cama","A bed. '침대에서 자요' = I sleep in bed.","Una cama. '침대에서 자요' = Duermo en la cama.","침대가 편해요.","chimdaega pyeonhaeyo.","The bed is comfortable.","La cama es cómoda."],
+["책","chaek","Book","Libro","A book. '책을 읽어요' = I read a book.","Un libro. '책을 읽어요' = Leo un libro.","재미있는 책이에요.","jaemiinneun chaegieyo.","It's an interesting book.","Es un libro interesante."],
+["컴퓨터","keompyuteo","Computer","Ordenador / Computadora","A computer (loanword). Laptop is 노트북.","Un ordenador (préstamo). Portátil es 노트북.","컴퓨터로 일해요.","keompyuteoro ilhaeyo.","I work on the computer.","Trabajo en el ordenador."],
+["휴대폰","hyudaepon","Cell phone","Teléfono móvil","A mobile phone. Also called 핸드폰 (haendeupon) or just 폰.","Un teléfono móvil. También 핸드폰 (haendeupon) o solo 폰.","휴대폰이 없어요.","hyudaeponi eopseoyo.","I don't have my phone.","No tengo el móvil."],
+["텔레비전","tellebijeon","Television","Televisión","A television (loanword). Often shortened to 티비 (TV).","Una televisión (préstamo). A menudo 티비 (TV).","텔레비전을 봐요.","tellebijeoneul bwayo.","I watch television.","Veo la televisión."],
+["냉장고","naengjanggo","Refrigerator","Refrigerador / Nevera","A refrigerator. Keeps food cold.","Un refrigerador. Mantiene la comida fría.","우유가 냉장고에 있어요.","uyuga naengjanggoe isseoyo.","The milk is in the fridge.","La leche está en la nevera."],
+["시계","sigye","Clock / Watch","Reloj","A clock or watch (seen in Day 3). 손목시계 = wristwatch.","Un reloj (visto en el Día 3). 손목시계 = reloj de pulsera.","벽에 시계가 있어요.","byeoge sigyega isseoyo.","There's a clock on the wall.","Hay un reloj en la pared."],
+["전화","jeonhwa","Telephone / Call","Teléfono / Llamada","A telephone or phone call. '전화를 받아요' = I answer the phone.","Un teléfono o llamada. '전화를 받아요' = Contesto el teléfono.","전화가 왔어요.","jeonhwaga wasseoyo.","I got a phone call.","Recibí una llamada."],
+["돈","don","Money","Dinero","Money. '돈이 없어요' = I have no money.","Dinero. '돈이 없어요' = No tengo dinero.","돈이 조금 있어요.","doni jogeum isseoyo.","I have a little money.","Tengo un poco de dinero."],
+["지갑","jigap","Wallet","Cartera","A wallet or purse. '지갑을 잃어버렸어요' = I lost my wallet.","Una cartera. '지갑을 잃어버렸어요' = Perdí la cartera.","지갑에 돈이 없어요.","jigabe doni eopseoyo.","There's no money in my wallet.","No hay dinero en mi cartera."],
+["열쇠","yeolsoe","Key","Llave","A key. '열쇠를 찾아요' = I look for the key.","Una llave. '열쇠를 찾아요' = Busco la llave.","열쇠가 어디 있어요?","yeolsoega eodi isseoyo?","Where is the key?","¿Dónde está la llave?"],
+["우산","usan","Umbrella","Paraguas","An umbrella. Bring one when 비가 와요 (it rains).","Un paraguas. Lleva uno cuando 비가 와요 (llueve).","비가 와요. 우산을 가져가요.","biga wayo. usaneul gajyeogayo.","It's raining. Take an umbrella.","Llueve. Lleva un paraguas."],
+["거울","geoul","Mirror","Espejo","A mirror. '거울을 봐요' = I look in the mirror.","Un espejo. '거울을 봐요' = Me miro en el espejo.","거울을 보고 머리를 빗어요.","geoureul bogo meorireul biseoyo.","I comb my hair looking in the mirror.","Me peino mirándome al espejo."],
+["수건","sugeon","Towel","Toalla","A towel. Used after washing.","Una toalla. Se usa tras lavarse.","수건으로 손을 닦아요.","sugeoneuro soneul dakkayo.","I dry my hands with a towel.","Me seco las manos con la toalla."],
+["비누","binu","Soap","Jabón","Soap for washing. 비누로 손을 씻어요.","Jabón para lavarse. 비누로 손을 씻어요.","비누로 손을 씻어요.","binuro soneul ssiseoyo.","I wash my hands with soap.","Me lavo las manos con jabón."],
+["접시","jeopsi","Plate / Dish","Plato","A plate or dish. 그릇 = bowl.","Un plato. 그릇 = cuenco.","접시에 과일을 담아요.","jeopsie gwaireul damayo.","I put fruit on the plate.","Pongo fruta en el plato."],
+["컵","keop","Cup","Taza / Vaso","A cup or glass (loanword). 잔 is also used for glasses.","Una taza o vaso (préstamo). 잔 también se usa para vasos.","컵에 물을 따라요.","keobe mureul ttarayo.","I pour water into the cup.","Sirvo agua en el vaso."],
+["숟가락","sutgarak","Spoon","Cuchara","A spoon. Used with 젓가락 (chopsticks) at meals.","Una cuchara. Se usa con 젓가락 (palillos) al comer.","숟가락으로 밥을 먹어요.","sutgarageuro babeul meogeoyo.","I eat rice with a spoon.","Como arroz con cuchara."],
+["젓가락","jeotgarak","Chopsticks","Palillos","Chopsticks. Essential for Korean meals.","Palillos. Esenciales en las comidas coreanas.","젓가락으로 김치를 먹어요.","jeotgarageuro gimchireul meogeoyo.","I eat kimchi with chopsticks.","Como kimchi con palillos."],
+["불","bul","Fire / Light","Fuego / Luz","불 means 'fire' and also 'light'. '불을 켜요' = I turn on the light.","불 significa 'fuego' y 'luz'. '불을 켜요' = Enciendo la luz.","불을 꺼 주세요.","bureul kkeo juseyo.","Please turn off the light.","Apague la luz, por favor."],
+["선물","seonmul","Gift / Present","Regalo","A gift. '선물을 줘요' = I give a gift.","Un regalo. '선물을 줘요' = Doy un regalo.","생일 선물을 샀어요.","saengil seonmureul sasseoyo.","I bought a birthday gift.","Compré un regalo de cumpleaños."],
+["사진","sajin","Photo / Picture","Foto","A photograph. '사진을 찍어요' = I take a photo.","Una fotografía. '사진을 찍어요' = Saco una foto.","사진을 같이 찍어요.","sajineul gachi jjigeoyo.","Let's take a photo together.","Hagámonos una foto juntos."],
+["편지","pyeonji","Letter","Carta","A written letter. '편지를 써요' = I write a letter.","Una carta. '편지를 써요' = Escribo una carta.","친구에게 편지를 써요.","chinguege pyeonjireul sseoyo.","I write a letter to a friend.","Escribo una carta a un amigo."],
+["옷장","otjang","Wardrobe / Closet","Armario","A wardrobe or closet for clothes. 옷 (clothes) + 장 (cabinet).","Un armario para la ropa. 옷 (ropa) + 장 (mueble).","옷을 옷장에 넣어요.","oseul otjange neoeoyo.","I put clothes in the wardrobe.","Guardo la ropa en el armario."]
+],
+[
+["동물","dongmul","Animal","Animal","The general word for animal. 동물원 = zoo.","La palabra general para animal. 동물원 = zoológico.","동물을 좋아해요.","dongmureul joahaeyo.","I like animals.","Me gustan los animales."],
+["개","gae","Dog","Perro","A dog. A puppy is 강아지 (also used affectionately for any dog).","Un perro. Un cachorro es 강아지 (también cariñoso para cualquier perro).","개가 귀여워요.","gaega gwiyeowoyo.","The dog is cute.","El perro es lindo."],
+["고양이","goyangi","Cat","Gato","A cat. Often shortened to 냥이 affectionately.","Un gato. A veces 냥이 de forma cariñosa.","고양이가 자고 있어요.","goyangiga jago isseoyo.","The cat is sleeping.","El gato está durmiendo."],
+["새","sae","Bird","Pájaro","A bird. '새가 날아요' = The bird flies.","Un pájaro. '새가 날아요' = El pájaro vuela.","새가 노래해요.","saega noraehaeyo.","The bird sings.","El pájaro canta."],
+["물고기","mulgogi","Fish (live)","Pez","A live fish. 물 (water) + 고기 (meat/flesh). Fish as food is 생선.","Un pez vivo. 물 (agua) + 고기 (carne). El pescado como comida es 생선.","물고기가 헤엄쳐요.","mulgogiga heeomchyeoyo.","The fish swims.","El pez nada."],
+["소","so","Cow / Cattle","Vaca","A cow. Beef is 소고기.","Una vaca. La carne de res es 소고기.","소가 풀을 먹어요.","soga pureul meogeoyo.","The cow eats grass.","La vaca come hierba."],
+["돼지","dwaeji","Pig","Cerdo","A pig. Pork is 돼지고기.","Un cerdo. La carne de cerdo es 돼지고기.","돼지가 진흙에 있어요.","dwaejiga jinheuge isseoyo.","The pig is in the mud.","El cerdo está en el barro."],
+["닭","dak","Chicken","Pollo / Gallina","A chicken. Chicken meat is 닭고기. Pronounced 'dak'.","Una gallina/pollo. La carne es 닭고기. Se pronuncia 'dak'.","닭이 알을 낳아요.","dalgi areul nahayo.","The hen lays an egg.","La gallina pone un huevo."],
+["말","mal","Horse / Speech","Caballo / Palabra","말 means both 'horse' and 'words/speech'. Context decides.","말 significa 'caballo' y 'palabras/habla'. El contexto decide.","말이 빨리 달려요.","mari ppalli dallyeoyo.","The horse runs fast.","El caballo corre rápido."],
+["토끼","tokki","Rabbit","Conejo","A rabbit. Known for long ears and hopping.","Un conejo. Conocido por sus orejas largas y sus saltos.","토끼가 풀밭에서 뛰어요.","tokkiga pulbateseo ttwieoyo.","The rabbit hops in the grass.","El conejo salta en la hierba."],
+["나무","namu","Tree / Wood","Árbol / Madera","A tree, or wood as a material.","Un árbol, o la madera como material.","나무가 아주 커요.","namuga aju keoyo.","The tree is very big.","El árbol es muy grande."],
+["꽃","kkot","Flower","Flor","A flower. '꽃이 피어요' = The flower blooms.","Una flor. '꽃이 피어요' = La flor florece.","봄에 꽃이 많이 펴요.","bome kkochi mani pyeoyo.","Many flowers bloom in spring.","Muchas flores florecen en primavera."],
+["풀","pul","Grass","Hierba","Grass or weeds. 풀밭 = grassy field.","Hierba o maleza. 풀밭 = pradera.","소가 풀을 먹어요.","soga pureul meogeoyo.","The cow eats grass.","La vaca come hierba."],
+["산","san","Mountain","Montaña","A mountain. '산에 올라가요' = I climb the mountain.","Una montaña. '산에 올라가요' = Subo la montaña.","주말에 산에 가요.","jumare sane gayo.","I go to the mountain on weekends.","Voy a la montaña los fines de semana."],
+["바다","bada","Sea / Ocean","Mar","The sea or ocean. '바다에서 수영해요' = I swim in the sea.","El mar u océano. '바다에서 수영해요' = Nado en el mar.","여름에 바다에 가요.","yeoreume badae gayo.","I go to the sea in summer.","Voy al mar en verano."],
+["강","gang","River","Río","A river. The Han River in Seoul is 한강.","Un río. El río Han en Seúl es 한강.","강에서 낚시를 해요.","gangeseo naksireul haeyo.","I fish in the river.","Pesco en el río."],
+["하늘","haneul","Sky","Cielo","The sky. '하늘이 파래요' = The sky is blue.","El cielo. '하늘이 파래요' = El cielo es azul.","하늘에 별이 많아요.","haneure byeori manayo.","There are many stars in the sky.","Hay muchas estrellas en el cielo."],
+["땅","ttang","Ground / Land","Tierra / Suelo","The ground or land. '땅에 앉아요' = I sit on the ground.","El suelo o la tierra. '땅에 앉아요' = Me siento en el suelo.","땅이 젖었어요.","ttangi jeojeosseoyo.","The ground is wet.","El suelo está mojado."],
+["돌","dol","Stone / Rock","Piedra","A stone or rock. Also means a baby's first birthday (돌).","Una piedra. También el primer cumpleaños de un bebé (돌).","길에 돌이 많아요.","gire dori manayo.","There are many stones on the road.","Hay muchas piedras en el camino."],
+["해","hae","Sun","Sol","The sun. Also means 'year'. '해가 떠요' = The sun rises.","El sol. También significa 'año'. '해가 떠요' = Sale el sol.","해가 떴어요.","haega tteosseoyo.","The sun has risen.","Ha salido el sol."],
+["달","dal","Moon / Month","Luna / Mes","The moon (also 'month', seen in Day 3). '달이 밝아요' = The moon is bright.","La luna (también 'mes', visto en el Día 3). '달이 밝아요' = La luna brilla.","밤에 달이 밝아요.","bame dari balgayo.","The moon is bright at night.","La luna brilla de noche."],
+["별","byeol","Star","Estrella","A star in the sky. '별을 봐요' = I look at the stars.","Una estrella. '별을 봐요' = Miro las estrellas.","별이 반짝여요.","byeori banjjagyeoyo.","The stars twinkle.","Las estrellas brillan."],
+["구름","gureum","Cloud","Nube","A cloud. '구름이 많아요' = It's cloudy.","Una nube. '구름이 많아요' = Está nublado.","하늘에 구름이 많아요.","haneure gureumi manayo.","There are many clouds in the sky.","Hay muchas nubes en el cielo."],
+["꽃집","kkotjip","Flower shop","Floristería","A flower shop. 꽃 (flower) + 집 (house/shop).","Una floristería. 꽃 (flor) + 집 (casa/tienda).","꽃집에서 장미를 샀어요.","kkotjibeseo jangmireul sasseoyo.","I bought roses at the flower shop.","Compré rosas en la floristería."],
+["공원","gongwon","Park","Parque","A public park. '공원에서 산책해요' = I take a walk in the park.","Un parque público. '공원에서 산책해요' = Paseo por el parque.","공원에서 운동해요.","gongwoneseo undonghaeyo.","I exercise in the park.","Hago ejercicio en el parque."],
+["날다","nalda","To fly","Volar","To fly. Polite: 날아요 (narayo). Birds and planes 날아요.","Volar. Cortés: 날아요. Los pájaros y aviones 날아요.","새가 하늘을 날아요.","saega haneureul narayo.","The bird flies in the sky.","El pájaro vuela por el cielo."],
+["키우다","kiuda","To raise / grow","Criar / cultivar","To raise an animal/child or grow a plant. Polite: 키워요 (kiwoyo).","Criar un animal/niño o cultivar una planta. Cortés: 키워요.","강아지를 키워요.","gangajireul kiwoyo.","I raise a puppy.","Crío un cachorro."],
+["귀엽다","gwiyeopda","To be cute","Ser lindo","To be cute. Polite: 귀여워요 (gwiyeowoyo).","Ser lindo/mono. Cortés: 귀여워요 (gwiyeowoyo).","강아지가 귀여워요.","gangajiga gwiyeowoyo.","The puppy is cute.","El cachorro es lindo."],
+["크다","keuda","To be big","Ser grande","Seen before — useful for animals/nature. '코끼리는 커요' = Elephants are big.","Visto antes — útil para animales/naturaleza. '코끼리는 커요' = Los elefantes son grandes.","나무가 정말 커요.","namuga jeongmal keoyo.","The tree is really big.","El árbol es muy grande."],
+["작다","jakda","To be small","Ser pequeño","Seen before — '새는 작아요' = Birds are small.","Visto antes — '새는 작아요' = Los pájaros son pequeños.","아기 새가 작아요.","agi saega jagayo.","The baby bird is small.","El pajarito es pequeño."]
+],
+[
+["공부","gongbu","Study","Estudio","The noun 'study'. Add 하다 to make the verb: 공부하다 (to study).","El sustantivo 'estudio'. Añade 하다 para el verbo: 공부하다 (estudiar).","공부가 재미있어요.","gongbuga jaemiisseoyo.","Studying is fun.","Estudiar es divertido."],
+["수업","sueop","Class / Lesson","Clase","A class or lesson. '수업이 있어요' = I have class.","Una clase o lección. '수업이 있어요' = Tengo clase.","한국어 수업을 들어요.","hangugeo sueobeul deureoyo.","I take a Korean class.","Tomo una clase de coreano."],
+["숙제","sukje","Homework","Tarea / Deberes","Homework. '숙제를 해요' = I do homework.","Tarea escolar. '숙제를 해요' = Hago la tarea.","숙제가 많아요.","sukjega manayo.","I have a lot of homework.","Tengo mucha tarea."],
+["시험","siheom","Exam / Test","Examen","An exam or test. '시험을 봐요' = I take a test.","Un examen. '시험을 봐요' = Hago un examen.","내일 시험이 있어요.","naeil siheomi isseoyo.","I have an exam tomorrow.","Mañana tengo un examen."],
+["질문","jilmun","Question","Pregunta","A question. '질문이 있어요' = I have a question.","Una pregunta. '질문이 있어요' = Tengo una pregunta.","질문이 있어요.","jilmuni isseoyo.","I have a question.","Tengo una pregunta."],
+["대답","daedap","Answer / Reply","Respuesta","An answer to a question. Verb form: 대답하다.","Una respuesta a una pregunta. Verbo: 대답하다.","대답을 잘했어요.","daedabeul jalhaesseoyo.","I answered well.","Respondí bien."],
+["연필","yeonpil","Pencil","Lápiz","A pencil. 연 (lead) + 필 (writing tool).","Un lápiz. 연 (mina) + 필 (instrumento de escritura).","연필로 써요.","yeonpillo sseoyo.","I write with a pencil.","Escribo con lápiz."],
+["펜","pen","Pen","Bolígrafo","A pen (loanword). 볼펜 = ballpoint pen.","Un bolígrafo (préstamo). 볼펜 = bolígrafo.","펜이 있어요?","peni isseoyo?","Do you have a pen?","¿Tienes un bolígrafo?"],
+["공책","gongchaek","Notebook","Cuaderno","A notebook. 공 (empty) + 책 (book). Also 노트 (note).","Un cuaderno. 공 (vacío) + 책 (libro). También 노트 (note).","공책에 메모해요.","gongchaege memohaeyo.","I take notes in the notebook.","Tomo notas en el cuaderno."],
+["종이","jongi","Paper","Papel","Paper. '종이 한 장' = one sheet of paper.","Papel. '종이 한 장' = una hoja de papel.","종이에 그림을 그려요.","jongie geurimeul geuryeoyo.","I draw a picture on paper.","Dibujo en el papel."],
+["칠판","chilpan","Blackboard / Board","Pizarra","A blackboard or whiteboard in a classroom.","Una pizarra en el aula.","선생님이 칠판에 써요.","seonsaengnimi chilpane sseoyo.","The teacher writes on the board.","El profesor escribe en la pizarra."],
+["교실","gyosil","Classroom","Aula","A classroom. 교 (teach) + 실 (room).","Un aula. 교 (enseñar) + 실 (sala).","교실이 조용해요.","gyosiri joyonghaeyo.","The classroom is quiet.","El aula está en silencio."],
+["대학교","daehakgyo","University","Universidad","A university. 대 (big) + 학교 (school).","Una universidad. 대 (grande) + 학교 (escuela).","대학교에 다녀요.","daehakgyoe danyeoyo.","I attend university.","Voy a la universidad."],
+["반","ban","Class (group)","Clase (grupo)","A class group/section. '우리 반' = my class.","Un grupo/sección de clase. '우리 반' = mi clase.","우리 반은 스무 명이에요.","uri baneun seumu myeongieyo.","Our class has twenty students.","Nuestra clase tiene veinte alumnos."],
+["방학","banghak","School vacation","Vacaciones escolares","School holidays. 여름 방학 = summer vacation.","Vacaciones escolares. 여름 방학 = vacaciones de verano.","여름 방학이 길어요.","yeoreum banghagi gireoyo.","Summer vacation is long.","Las vacaciones de verano son largas."],
+["단어","daneo","Word / Vocabulary","Palabra / Vocabulario","A word or vocabulary item. '단어를 외워요' = I memorize words.","Una palabra o vocablo. '단어를 외워요' = Memorizo palabras.","새 단어를 배워요.","sae daneoreul baewoyo.","I learn new words.","Aprendo palabras nuevas."],
+["문장","munjang","Sentence","Frase / Oración","A sentence. Made of 단어 (words).","Una oración. Hecha de 단어 (palabras).","문장을 만들어요.","munjangeul mandeureoyo.","I make a sentence.","Hago una frase."],
+["외우다","oeuda","To memorize","Memorizar","To memorize. Polite: 외워요 (oewoyo).","Memorizar. Cortés: 외워요 (oewoyo).","단어를 외워요.","daneoreul oewoyo.","I memorize words.","Memorizo palabras."],
+["가르치다","gareuchida","To teach","Enseñar","To teach (seen in Day 7). Polite: 가르쳐요.","Enseñar (visto en el Día 7). Cortés: 가르쳐요.","선생님이 한국어를 가르쳐요.","seonsaengnimi hangugeoreul gareuchyeoyo.","The teacher teaches Korean.","El profesor enseña coreano."],
+["연습하다","yeonseuphada","To practice","Practicar","To practice. Polite: 연습해요 (yeonseuphaeyo).","Practicar. Cortés: 연습해요 (yeonseuphaeyo).","말하기를 연습해요.","malhagireul yeonseuphaeyo.","I practice speaking.","Practico la conversación."],
+["이해하다","ihaehada","To understand","Entender","To understand. Polite: 이해해요 (ihaehaeyo). Casual: 알아요.","Entender. Cortés: 이해해요 (ihaehaeyo). Informal: 알아요.","이제 이해해요.","ije ihaehaeyo.","Now I understand.","Ahora entiendo."],
+["맞다","matda","To be correct","Ser correcto","To be right/correct (seen in Day 4). '답이 맞아요' = The answer is right.","Ser correcto (visto en el Día 4). '답이 맞아요' = La respuesta es correcta.","답이 맞아요.","dabi majayo.","The answer is correct.","La respuesta es correcta."],
+["틀리다","teullida","To be wrong","Estar equivocado","To be wrong/incorrect. Polite: 틀려요 (teullyeoyo).","Estar equivocado. Cortés: 틀려요 (teullyeoyo).","답이 틀렸어요.","dabi teullyeosseoyo.","The answer is wrong.","La respuesta es incorrecta."],
+["가방","gabang","Bag / Backpack","Mochila","A bag/backpack (seen in Day 5). Students carry a 책가방.","Una mochila (visto en el Día 5). Los estudiantes llevan 책가방.","책을 가방에 넣어요.","chaegeul gabange neoeoyo.","I put the book in my bag.","Pongo el libro en la mochila."],
+["숫자","sutja","Number","Número","A number/digit. Korean has two number systems (native + Sino).","Un número/cifra. El coreano tiene dos sistemas de números (nativo + sino).","숫자를 세어요.","sutjareul seeoyo.","I count the numbers.","Cuento los números."],
+["글자","geulja","Letter / Character","Letra","A written letter or character. Hangul letters are 글자.","Una letra escrita. Las letras del hangul son 글자.","글자가 작아요.","geuljaga jagayo.","The letters are small.","Las letras son pequeñas."],
+["읽기","ilgi","Reading","Lectura","The skill of reading. From 읽다 (to read).","La habilidad de leer. De 읽다 (leer).","읽기가 어려워요.","ilgiga eoryeowoyo.","Reading is difficult.","La lectura es difícil."],
+["쓰기","sseugi","Writing","Escritura","The skill of writing. From 쓰다 (to write).","La habilidad de escribir. De 쓰다 (escribir).","쓰기 연습을 해요.","sseugi yeonseubeul haeyo.","I practice writing.","Practico la escritura."],
+["듣기","deutgi","Listening","Comprensión auditiva","The skill of listening. From 듣다 (to listen).","La habilidad de escuchar. De 듣다 (escuchar).","듣기가 제일 어려워요.","deutgiga jeil eoryeowoyo.","Listening is the hardest.","Lo más difícil es escuchar."],
+["말하기","malhagi","Speaking","Expresión oral","The skill of speaking. From 말하다 (to speak).","La habilidad de hablar. De 말하다 (hablar).","말하기를 많이 연습해요.","malhagireul mani yeonseuphaeyo.","I practice speaking a lot.","Practico mucho la conversación."]
+],
+[
+["음식","eumsik","Food","Comida","The general word for food. 한국 음식 = Korean food.","La palabra general para comida. 한국 음식 = comida coreana.","한국 음식을 좋아해요.","hanguk eumsigeul joahaeyo.","I like Korean food.","Me gusta la comida coreana."],
+["라면","ramyeon","Ramen / Instant noodles","Ramen / Fideos instantáneos","Korean instant noodles, usually spicy. A popular quick meal.","Fideos instantáneos coreanos, normalmente picantes. Una comida rápida popular.","점심에 라면을 먹어요.","jeomsime ramyeoneul meogeoyo.","I eat ramen for lunch.","Como ramen al almuerzo."],
+["김밥","gimbap","Gimbap","Gimbap","Rice and fillings rolled in seaweed. A popular snack or light meal.","Arroz y rellenos enrollados en alga. Un aperitivo o comida ligera popular.","김밥 한 줄 주세요.","gimbap han jul juseyo.","One roll of gimbap, please.","Un rollo de gimbap, por favor."],
+["불고기","bulgogi","Bulgogi","Bulgogi","Marinated grilled beef. 불 (fire) + 고기 (meat). A favorite dish.","Carne de res marinada a la parrilla. 불 (fuego) + 고기 (carne). Un plato favorito.","불고기가 정말 맛있어요.","bulgogiga jeongmal masisseoyo.","Bulgogi is really delicious.","El bulgogi está muy rico."],
+["국","guk","Soup","Sopa","A soup served with rice. 미역국 = seaweed soup.","Una sopa que acompaña el arroz. 미역국 = sopa de algas.","따뜻한 국을 먹어요.","ttaatteuthan gugeul meogeoyo.","I eat warm soup.","Tomo una sopa caliente."],
+["계란","gyeran","Egg","Huevo","An egg. Also called 달걀 (dalgyal).","Un huevo. También 달걀 (dalgyal).","아침에 계란을 먹어요.","achime gyeraneul meogeoyo.","I eat eggs in the morning.","Como huevos por la mañana."],
+["우유","uyu","Milk","Leche","Milk. '우유를 마셔요' = I drink milk.","Leche. '우유를 마셔요' = Bebo leche.","우유를 매일 마셔요.","uyureul maeil masyeoyo.","I drink milk every day.","Bebo leche todos los días."],
+["주스","juseu","Juice","Zumo / Jugo","Juice (loanword). 오렌지 주스 = orange juice.","Zumo (préstamo). 오렌지 주스 = zumo de naranja.","오렌지 주스를 주세요.","orenji juseureul juseyo.","Orange juice, please.","Un zumo de naranja, por favor."],
+["설탕","seoltang","Sugar","Azúcar","Sugar. Makes things 달다 (sweet).","Azúcar. Hace las cosas 달다 (dulces).","커피에 설탕을 넣어요.","keopie seoltangeul neoeoyo.","I put sugar in my coffee.","Le pongo azúcar al café."],
+["소금","sogeum","Salt","Sal","Salt. Makes things 짜다 (salty).","Sal. Hace las cosas 짜다 (saladas).","소금을 조금 넣어요.","sogeumeul jogeum neoeoyo.","I add a little salt.","Añado un poco de sal."],
+["맵다","maepda","To be spicy","Ser picante","To be spicy/hot. Polite: 매워요 (maewoyo). Korean food is often 매워요.","Ser picante. Cortés: 매워요. La comida coreana suele ser 매워요.","이 음식이 매워요.","i eumsigi maewoyo.","This food is spicy.","Esta comida es picante."],
+["달다","dalda","To be sweet","Ser dulce","To be sweet. Polite: 달아요 (darayo).","Ser dulce. Cortés: 달아요 (darayo).","이 과일이 달아요.","i gwairi darayo.","This fruit is sweet.","Esta fruta es dulce."],
+["짜다","jjada","To be salty","Ser salado","To be salty. Polite: 짜요 (jjayo).","Ser salado. Cortés: 짜요 (jjayo).","국이 좀 짜요.","gugi jom jjayo.","The soup is a bit salty.","La sopa está un poco salada."],
+["시다","sida","To be sour","Ser agrio","To be sour. Polite: 셔요 (syeoyo). Lemons are 셔요.","Ser agrio. Cortés: 셔요. Los limones son 셔요.","레몬이 셔요.","remoni syeoyo.","Lemons are sour.","Los limones son agrios."],
+["쓰다","sseuda","To be bitter","Ser amargo","쓰다 also means 'bitter' (and 'to write/use'). Polite: 써요. Coffee is 써요.","쓰다 también significa 'amargo' (y 'escribir/usar'). Cortés: 써요. El café es 써요.","약이 너무 써요.","yagi neomu sseoyo.","The medicine is very bitter.","La medicina es muy amarga."],
+["맛","mat","Taste / Flavor","Sabor","Taste or flavor. '맛이 좋아요' = It tastes good.","Sabor. '맛이 좋아요' = Sabe bien.","이 음식은 맛이 좋아요.","i eumsigeun masi joayo.","This food tastes good.","Esta comida sabe bien."],
+["배부르다","baebureuda","To be full (stomach)","Estar lleno","To feel full after eating. Polite: 배불러요 (baebulleoyo). Opposite of 배고프다.","Sentirse lleno tras comer. Cortés: 배불러요. Contrario de 배고프다.","많이 먹어서 배불러요.","mani meogeoseo baebulleoyo.","I'm full because I ate a lot.","Estoy lleno porque comí mucho."],
+["주문하다","jumunhada","To order (food)","Pedir (comida)","To order food. Polite: 주문해요 (jumunhaeyo).","Pedir comida. Cortés: 주문해요 (jumunhaeyo).","메뉴를 주문해요.","menyureul jumunhaeyo.","I order from the menu.","Pido del menú."],
+["메뉴","menyu","Menu","Menú","A menu (loanword). '메뉴를 보여 주세요' = Please show me the menu.","Un menú (préstamo). '메뉴를 보여 주세요' = Muéstreme el menú.","메뉴 좀 주세요.","menyu jom juseyo.","The menu, please.","El menú, por favor."],
+["계산하다","gyesanhada","To pay / calculate","Pagar / calcular","To pay a bill or calculate. '계산해 주세요' = Check, please.","Pagar la cuenta o calcular. '계산해 주세요' = La cuenta, por favor.","여기 계산해 주세요.","yeogi gyesanhae juseyo.","Check, please.","La cuenta, por favor."],
+["맛집","matjip","Good restaurant","Buen restaurante","A restaurant famous for delicious food. 맛 (taste) + 집 (place).","Un restaurante famoso por su comida rica. 맛 (sabor) + 집 (lugar).","여기는 유명한 맛집이에요.","yeogineun yumyeonghan matjibieyo.","This is a famous good restaurant.","Este es un buen restaurante famoso."],
+["반찬","banchan","Side dish","Guarnición","Small side dishes served with rice. Kimchi is a 반찬.","Pequeños platos que acompañan el arroz. El kimchi es un 반찬.","반찬이 많이 나와요.","banchani mani nawayo.","Many side dishes come out.","Salen muchas guarniciones."],
+["채소","chaeso","Vegetable","Verdura","Vegetables. Also called 야채 (yachae).","Verduras. También 야채 (yachae).","채소를 많이 먹어요.","chaesoreul mani meogeoyo.","I eat a lot of vegetables.","Como muchas verduras."],
+["사과","sagwa","Apple","Manzana","An apple. Also means 'apology' as a homonym.","Una manzana. También significa 'disculpa' como homónimo.","사과가 빨개요.","sagwaga ppalgaeyo.","The apple is red.","La manzana es roja."],
+["바나나","banana","Banana","Plátano","A banana (loanword).","Un plátano (préstamo).","바나나가 노래요.","bananaga noraeyo.","The banana is yellow.","El plátano es amarillo."],
+["딸기","ttalgi","Strawberry","Fresa","A strawberry. Popular in 봄 (spring).","Una fresa. Popular en 봄 (primavera).","딸기가 정말 달아요.","ttalgiga jeongmal darayo.","The strawberries are really sweet.","Las fresas están muy dulces."],
+["빵","ppang","Bread","Pan","Bread (seen in Day 2). 빵집 = bakery.","Pan (visto en el Día 2). 빵집 = panadería.","빵집에서 빵을 사요.","ppangjibeseo ppangeul sayo.","I buy bread at the bakery.","Compro pan en la panadería."],
+["과자","gwaja","Snack / Cookie","Galletas / Aperitivo","Snacks, cookies, or chips. A treat between meals.","Galletas, snacks o aperitivos. Un capricho entre comidas.","아이가 과자를 좋아해요.","aiga gwajareul joahaeyo.","The child likes snacks.","Al niño le gustan las galletas."],
+["배고프다","baegopeuda","To be hungry","Tener hambre","To be hungry (seen in Day 4). Polite: 배고파요.","Tener hambre (visto en el Día 4). Cortés: 배고파요.","지금 너무 배고파요.","jigeum neomu baegopayo.","I'm very hungry now.","Ahora tengo mucha hambre."],
+["맛있다","masitda","To be delicious","Estar delicioso","To be delicious (seen in Day 4) — key food word. Polite: 맛있어요.","Estar delicioso (visto en el Día 4) — palabra clave. Cortés: 맛있어요.","이 식당 음식이 맛있어요.","i sikdang eumsigi masisseoyo.","This restaurant's food is delicious.","La comida de este restaurante está deliciosa."]
+],
+[
+["가격","gagyeok","Price","Precio","The price of something. '가격이 비싸요' = The price is high.","El precio de algo. '가격이 비싸요' = El precio es alto.","가격이 얼마예요?","gagyeogi eolmayeyo?","How much is the price?","¿Cuál es el precio?"],
+["얼마","eolma","How much","Cuánto","Asks the price or amount. '얼마예요?' = How much is it?","Pregunta el precio o la cantidad. '얼마예요?' = ¿Cuánto cuesta?","이거 얼마예요?","igeo eolmayeyo?","How much is this?","¿Cuánto cuesta esto?"],
+["원","won","Won (currency)","Won (moneda)","The Korean currency. 천 원 = 1,000 won.","La moneda coreana. 천 원 = 1.000 wones.","이건 오천 원이에요.","igeon ocheon wonieyo.","This is 5,000 won.","Esto cuesta 5.000 wones."],
+["사다","sada","To buy","Comprar","To buy (seen in Day 2). Polite: 사요. Opposite: 팔다.","Comprar (visto en el Día 2). Cortés: 사요. Contrario: 팔다.","시장에서 과일을 사요.","sijangeseo gwaireul sayo.","I buy fruit at the market.","Compro fruta en el mercado."],
+["팔다","palda","To sell","Vender","To sell. Polite: 팔아요 (parayo).","Vender. Cortés: 팔아요 (parayo).","가게에서 빵을 팔아요.","gageeseo ppangeul parayo.","They sell bread at the shop.","Venden pan en la tienda."],
+["돈","don","Money","Dinero","Money (seen in Day 9). '돈을 내요' = I pay money.","Dinero (visto en el Día 9). '돈을 내요' = Pago dinero.","돈이 부족해요.","doni bujokhaeyo.","I don't have enough money.","No tengo suficiente dinero."],
+["카드","kadeu","Card","Tarjeta","A card, usually a credit/debit card (loanword). '카드로 계산해요' = I pay by card.","Una tarjeta, normalmente de crédito/débito (préstamo). '카드로 계산해요' = Pago con tarjeta.","카드로 계산할게요.","kadeuro gyesanhalgeyo.","I'll pay by card.","Pagaré con tarjeta."],
+["현금","hyeongeum","Cash","Efectivo","Cash money. '현금으로 내요' = I pay in cash.","Dinero en efectivo. '현금으로 내요' = Pago en efectivo.","현금으로 계산해요.","hyeongeumeuro gyesanhaeyo.","I pay in cash.","Pago en efectivo."],
+["싸다","ssada","To be cheap","Ser barato","To be cheap (seen in Day 4). Polite: 싸요.","Ser barato (visto en el Día 4). Cortés: 싸요.","이 가게는 싸요.","i gageneun ssayo.","This shop is cheap.","Esta tienda es barata."],
+["비싸다","bissada","To be expensive","Ser caro","To be expensive (seen in Day 4). Polite: 비싸요.","Ser caro (visto en el Día 4). Cortés: 비싸요.","가방이 너무 비싸요.","gabangi neomu bissayo.","The bag is too expensive.","La bolsa es demasiado cara."],
+["할인","harin","Discount","Descuento","A discount/sale. '할인해 주세요' = Please give me a discount.","Un descuento/rebaja. '할인해 주세요' = Hágame un descuento.","오늘 할인이 있어요.","oneul harini isseoyo.","There's a discount today.","Hoy hay descuento."],
+["마트","mateu","Supermarket / Mart","Supermercado","A supermarket (loanword from 'mart'). Bigger than a 가게.","Un supermercado (préstamo de 'mart'). Más grande que una 가게.","마트에서 장을 봐요.","mateueseo jangeul bwayo.","I do grocery shopping at the mart.","Hago la compra en el supermercado."],
+["백화점","baekhwajeom","Department store","Grandes almacenes","A large department store. 백화 (hundred goods) + 점 (store).","Unos grandes almacenes. 백화 (cien artículos) + 점 (tienda).","백화점에서 옷을 사요.","baekhwajeomeseo oseul sayo.","I buy clothes at the department store.","Compro ropa en los grandes almacenes."],
+["손님","sonnim","Customer","Cliente","A customer (seen in Day 8). Shops say '손님!' to greet you.","Un cliente (visto en el Día 8). Las tiendas saludan '손님!'.","손님이 줄을 서요.","sonnimi jureul seoyo.","The customers stand in line.","Los clientes hacen fila."],
+["개","gae","Item (counter)","Unidad (clasificador)","A counter for general objects. 사과 두 개 = two apples.","Un clasificador para objetos. 사과 두 개 = dos manzanas.","사과 세 개 주세요.","sagwa se gae juseyo.","Three apples, please.","Tres manzanas, por favor."],
+["명","myeong","People (counter)","Personas (clasificador)","A counter for people. 두 명 = two people.","Un clasificador para personas. 두 명 = dos personas.","어른 두 명이요.","eoreun du myeongiyo.","Two adults, please.","Dos adultos, por favor."],
+["병","byeong","Bottle (counter)","Botella (clasificador)","A counter for bottles. 물 한 병 = one bottle of water. Also means 'illness'.","Un clasificador para botellas. 물 한 병 = una botella de agua. También 'enfermedad'.","물 두 병 주세요.","mul du byeong juseyo.","Two bottles of water, please.","Dos botellas de agua, por favor."],
+["잔","jan","Glass / Cup (counter)","Vaso / Taza (clasificador)","A counter for cups/glasses. 커피 한 잔 = one cup of coffee.","Un clasificador para tazas/vasos. 커피 한 잔 = un café.","커피 한 잔 주세요.","keopi han jan juseyo.","One cup of coffee, please.","Un café, por favor."],
+["하나","hana","One (native)","Uno (nativo)","Native Korean number 1. Used for counting things: 하나, 둘, 셋.","Número nativo coreano 1. Para contar cosas: 하나, 둘, 셋.","하나만 주세요.","hanaman juseyo.","Just one, please.","Solo uno, por favor."],
+["둘","dul","Two (native)","Dos (nativo)","Native Korean number 2. Before a counter it becomes 두: 두 개.","Número nativo coreano 2. Ante clasificador es 두: 두 개.","둘 다 좋아요.","dul da joayo.","I like both.","Me gustan los dos."],
+["셋","set","Three (native)","Tres (nativo)","Native Korean number 3. Before a counter it becomes 세: 세 명.","Número nativo coreano 3. Ante clasificador es 세: 세 명.","셋이 같이 가요.","sesi gachi gayo.","The three of us go together.","Vamos los tres juntos."],
+["넷","net","Four (native)","Cuatro (nativo)","Native Korean number 4. Before a counter it becomes 네: 네 개.","Número nativo coreano 4. Ante clasificador es 네: 네 개.","사과 넷을 샀어요.","sagwa neseul sasseoyo.","I bought four apples.","Compré cuatro manzanas."],
+["다섯","daseot","Five (native)","Cinco (nativo)","Native Korean number 5. 다섯 개 = five items.","Número nativo coreano 5. 다섯 개 = cinco unidades.","다섯 시에 만나요.","daseot sie mannayo.","Let's meet at five.","Quedamos a las cinco."],
+["주다","juda","To give","Dar","To give (seen before). 주세요 = please give me, used a lot when shopping.","Dar (visto antes). 주세요 = deme por favor, muy usado al comprar.","이거 두 개 주세요.","igeo du gae juseyo.","Two of these, please.","Dos de estos, por favor."],
+["바꾸다","bakkuda","To change / exchange","Cambiar","To change or exchange. Polite: 바꿔요 (bakkwoyo). Exchange goods: 교환하다.","Cambiar o intercambiar. Cortés: 바꿔요. Cambiar productos: 교환하다.","이 옷을 바꾸고 싶어요.","i oseul bakkugo sipeoyo.","I want to exchange these clothes.","Quiero cambiar esta ropa."],
+["필요하다","piryohada","To need","Necesitar","To need something. Polite: 필요해요 (piryohaeyo).","Necesitar algo. Cortés: 필요해요 (piryohaeyo).","우산이 필요해요.","usani piryohaeyo.","I need an umbrella.","Necesito un paraguas."],
+["새","sae","New","Nuevo","'New' as a modifier before a noun: 새 옷 = new clothes. (Also 'bird' as a separate word.)","'Nuevo' antes de un sustantivo: 새 옷 = ropa nueva. (También 'pájaro' como otra palabra.)","새 신발을 샀어요.","sae sinbareul sasseoyo.","I bought new shoes.","Compré zapatos nuevos."],
+["크기","keugi","Size","Tamaño","The size of something. From 크다 (to be big).","El tamaño de algo. De 크다 (ser grande).","크기가 딱 맞아요.","keugiga ttak majayo.","The size fits perfectly.","La talla queda perfecta."],
+["고르다","goreuda","To choose / pick","Elegir","To choose/select. Polite: 골라요 (gollayo).","Elegir/seleccionar. Cortés: 골라요 (gollayo).","마음에 드는 걸 골라요.","maeume deuneun geol gollayo.","I pick the one I like.","Elijo el que me gusta."],
+["주문하다","jumunhada","To order","Pedir / encargar","To order (seen in Day 12) — also for online shopping.","Pedir/encargar (visto en el Día 12) — también compras en línea.","인터넷으로 주문해요.","inteoneseuro jumunhaeyo.","I order online.","Pido por internet."]
+]
+];
+
+
+const STORAGE_KEY = "learn-korean-v1";
+const PER_ROUND = 12;
+
+// ---- build card lists ----
+const jamoCards = []
+  .concat(JAMO_CON.map(r=>({type:"jamo",cat:"consonant",ko:r[0],rom:r[1],en:r[2],es:r[3],audio:r[4]})))
+  .concat(JAMO_VOW.map(r=>({type:"jamo",cat:"vowel",ko:r[0],rom:r[1],en:r[2],es:r[3],audio:r[4]})));
+function buildWordCards(arr){ return arr.map(r=>({type:"word",ko:r[0],rom:r[1],en:r[2],es:r[3],descEn:r[4],descEs:r[5],ex:r[6],exRom:r[7],exEn:r[8],exEs:r[9]})); }
+
+const beginnerMods = [
+  {id:"jamo", icon:"가", titleEn:"Hangul Letters", titleKr:"한글 자모", descEn:"24 basic letters · sound + romanization", descEs:"24 letras básicas · sonido + romanización", cards:jamoCards, type:"jamo"},
+];
+WORD_DAYS.forEach((arr,i)=>{
+  var t = (typeof DAY_TITLES!=="undefined" && DAY_TITLES[i]) ? DAY_TITLES[i] : ["Basic Words · Day "+(i+1), "기초 단어 "+(i+1)+"일차", "📘"];
+  beginnerMods.push({
+    id:"words"+(i+1), icon:t[2],
+    titleEn:"Day "+(i+1)+" · "+t[0], titleKr:t[1],
+    descEn:arr.length+" words with meaning, usage & examples", descEs:arr.length+" palabras con significado, uso y ejemplos",
+    cards:buildWordCards(arr), type:"word"
+  });
+});
+
+const MODULES = {
+  beginner:beginnerMods,
+  intermediate:[],
+  advanced:[],
+};
+
+const T = {
+  en:{ back:"Back", listen:"Listen", listenWord:"Word", listenEx:"Sentence", flip:"tap to flip",
+       again:"Again", known:"Got it", letter:"LETTER", word:"WORD", done:"Done!",
+       learnedRound:"learned this round", toReview:"to review", reviewAgain:"Review again",
+       backMenu:"Back to menu", letters:"Letters", words:"Words", foot:"Tip: add to your home screen to use full-screen · Progress saves automatically on this device",
+       soon:"Coming soon — content is being added step by step.", consonant:"Consonant", vowel:"Vowel", example:"Example" },
+  es:{ back:"Atrás", listen:"Escuchar", listenWord:"Palabra", listenEx:"Frase", flip:"toca para girar",
+       again:"Otra vez", known:"Lo sé", letter:"LETRA", word:"PALABRA", done:"¡Listo!",
+       learnedRound:"aprendidas esta ronda", toReview:"para repasar", reviewAgain:"Repasar de nuevo",
+       backMenu:"Volver al menú", letters:"Letras", words:"Palabras", foot:"Consejo: añade a tu pantalla de inicio para pantalla completa · El progreso se guarda en este dispositivo",
+       soon:"Próximamente — el contenido se añade poco a poco.", consonant:"Consonante", vowel:"Vocal", example:"Ejemplo" },
+};
+
+let state = { status:{}, lang:"en" };
+let mem=null;
+function lsGet(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
+function lsSet(k,v){ try{localStorage.setItem(k,v);return true;}catch(e){return false;} }
+function lsDel(k){ try{localStorage.removeItem(k);}catch(e){} }
+function loadState(){ const f={status:{},lang:"en"}; const raw=lsGet(STORAGE_KEY); if(raw){try{return Object.assign(f,JSON.parse(raw));}catch(e){}} if(mem)return Object.assign(f,mem); return f; }
+function saveState(){ const v=JSON.stringify(state); mem=JSON.parse(v); lsSet(STORAGE_KEY,v); }
+function clearState(){ state={status:{},lang:state.lang||"en"}; mem=null; lsDel(STORAGE_KEY); }
+
+const $ = id=>document.getElementById(id);
+let curLev="beginner", session=null, flipped=false;
+function L(){ return T[state.lang]; }
+function keyOf(c){ return c.type+":"+c.ko; }
+function known(c){ return state.status[keyOf(c)]==="known"; }
+
+// ---- Korean TTS ----
+let koVoice=null;
+function pickVoice(){ if(!("speechSynthesis" in window))return; const vs=speechSynthesis.getVoices(); koVoice=vs.find(v=>/ko[-_]KR/i.test(v.lang))||vs.find(v=>/^ko/i.test(v.lang))||null; }
+if("speechSynthesis" in window){ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }
+function speak(text, btn){
+  if(!("speechSynthesis" in window))return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text); u.lang="ko-KR"; u.rate=0.85; if(koVoice)u.voice=koVoice;
+  if(btn){ btn.classList.add("on"); u.onend=u.onerror=()=>btn.classList.remove("on"); }
+  speechSynthesis.speak(u);
+}
+
+// ---- home ----
+function renderHome(){
+  $("foot").textContent=L().foot;
+  $("backLbl").textContent=L().back;
+  const mods=MODULES[curLev], wrap=$("modWrap");
+  if(!mods.length){ wrap.innerHTML='<div class="levmsg">'+L().soon+'</div>'; return; }
+  wrap.className="modlist"; wrap.innerHTML="";
+  mods.forEach(m=>{
+    const total=m.cards.length, k=m.cards.filter(known).length;
+    const el=document.createElement("button"); el.className="mod";
+    const title=state.lang==="en"?m.titleEn:m.titleEn; // keep English title, show Korean subtitle
+    const desc=state.lang==="en"?m.descEn:m.descEs;
+    el.innerHTML=`<span class="mi kr">${m.icon}</span>
+      <span class="mtext"><h3>${m.titleEn} <span class="kr" style="color:var(--muted);font-weight:500;font-size:13px">${m.titleKr}</span></h3><p>${desc}</p></span>
+      <span class="mprog">${k}/${total}</span><span class="arrow">→</span>`;
+    el.addEventListener("click",()=>startModule(m));
+    wrap.appendChild(el);
+  });
+}
+
+// ---- study ----
+function startModule(m, reviewOnly){
+  let cards = m.cards.map((c,i)=>i);
+  if(reviewOnly){ cards = m.cards.map((c,i)=>i).filter(i=>state.status[keyOf(m.cards[i])]==="learning"); if(!cards.length)return; }
+  session={ mod:m, order:cards, pos:0, isReview:!!reviewOnly };
+  show("study");
+  $("whereLabel").textContent = m.type==="jamo" ? L().letters : (state.lang==="en" ? m.titleEn : m.titleKr);
+  renderCard();
+}
+function show(s){ ["home","study","done"].forEach(x=>$(x).classList.toggle("hidden", x!==s)); window.scrollTo(0,0); }
+
+function renderCard(){
+  const m=session.mod, idxs=session.order;
+  if(session.pos>=idxs.length){ finish(); return; }
+  const c=m.cards[idxs[session.pos]];
+  flipped=false; $("flash").classList.remove("flipped");
+  const front=$("frontFace"), back=$("backFace");
+  $("fCorner").textContent=`${session.pos+1} / ${idxs.length}`;
+  $("frontHint").firstChild.textContent=L().flip+" ";
+  if(c.type==="jamo"){
+    front.className="face front jamo"; back.className="face back-face jamo";
+    $("frontTag").textContent=L().letter;
+    $("fKo").textContent=c.ko; $("fRom").textContent=c.rom;
+    $("spk1lbl").textContent=L().listen;
+    const catLabel = c.cat==="consonant"?L().consonant:L().vowel;
+    const d = state.lang==="en"?c.en:c.es;
+    back.innerHTML=`<span class="tagword">${catLabel}</span>
+      <span class="desc">${d}</span>
+      <div class="divider"></div>
+      <span class="exrom" style="margin:0 0 6px">${L().example}</span>
+      <span class="bigko kr" style="font-size:clamp(40px,12vw,64px)">${c.audio}</span>
+      <button class="speak sm" id="spk2" type="button"><svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a4.5 4.5 0 0 1 0 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> ${L().listen}</button>`;
+    back.querySelector("#spk2").addEventListener("click",e=>{ e.stopPropagation(); speak(c.audio, e.currentTarget); });
+  } else {
+    front.className="face front word"; back.className="face back-face word";
+    $("frontTag").textContent=L().word;
+    $("fKo").textContent=c.ko; $("fRom").textContent=c.rom;
+    $("spk1lbl").textContent=L().listen;
+    const mean=state.lang==="en"?c.en:c.es;
+    const note=state.lang==="en"?c.descEn:c.descEs;
+    const exTr=state.lang==="en"?c.exEn:c.exEs;
+    back.innerHTML=`<span class="tagword">${L().word}</span>
+      <span class="meaning">${mean}</span>
+      <span class="note">${note}</span>
+      <div class="divider"></div>
+      <span class="example kr">${c.ex}</span>
+      <span class="exrom">${c.exRom}</span>
+      <span class="transl" style="margin-top:8px">${exTr}</span>
+      <button class="speak sm" id="spk2" type="button" style="margin-top:16px"><svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a4.5 4.5 0 0 1 0 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> ${L().listenEx}</button>`;
+    back.querySelector("#spk2").addEventListener("click",e=>{ e.stopPropagation(); speak(c.ex, e.currentTarget); });
+  }
+  const kn=idxs.filter(i=>state.status[keyOf(m.cards[i])]==="known").length;
+  const ln=idxs.filter(i=>state.status[keyOf(m.cards[i])]==="learning").length;
+  $("cntKnown").textContent=kn; $("cntLearn").textContent=ln;
+  $("miniBar").style.width=(session.pos/idxs.length*100)+"%";
+  $("againLbl").textContent=L().again; $("knownLbl").textContent=L().known;
+}
+function curCard(){ return session.mod.cards[session.order[session.pos]]; }
+function flip(){ flipped=!flipped; $("flash").classList.toggle("flipped",flipped); }
+function mark(status){
+  const c=curCard(); state.status[keyOf(c)]=status; session.pos++; saveState();
+  if(session.pos>=session.order.length) finish(); else renderCard();
+}
+function finish(){
+  const m=session.mod, idxs=session.order;
+  const kn=idxs.filter(i=>state.status[keyOf(m.cards[i])]==="known").length;
+  const ln=idxs.filter(i=>state.status[keyOf(m.cards[i])]==="learning").length;
+  show("done");
+  $("doneTitle").textContent=L().done;
+  $("doneKnown").textContent=kn; $("doneKnownLbl").textContent=L().learnedRound;
+  if(ln>0){ $("doneLearnLine").classList.remove("hidden"); $("doneLearn").textContent=ln; $("doneLearnLbl").textContent=L().toReview; }
+  else $("doneLearnLine").classList.add("hidden");
+  $("doneReview").textContent=L().reviewAgain; $("doneHome").textContent=L().backMenu;
+  $("doneReview").classList.toggle("hidden", ln===0);
+}
+
+// ---- events ----
+$("langTog").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b)return; state.lang=b.dataset.lang; [...$("langTog").children].forEach(x=>x.classList.toggle("on",x===b)); saveState(); if(!$("study").classList.contains("hidden")) renderCard(); else if(!$("done").classList.contains("hidden")) finish(); renderHome(); });
+$("levSeg").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b)return; curLev=b.dataset.lev; [...$("levSeg").children].forEach(x=>x.classList.toggle("on",x===b)); renderHome(); });
+$("backBtn").addEventListener("click",()=>{ renderHome(); show("home"); });
+$("flash").addEventListener("click",flip);
+$("spk1").addEventListener("click",e=>{ e.stopPropagation(); const c=curCard(); speak(c.type==="jamo"?c.audio:c.ko, $("spk1")); });
+$("btnAgain").addEventListener("click",()=>mark("learning"));
+$("btnKnown").addEventListener("click",()=>mark("known"));
+$("doneReview").addEventListener("click",()=>startModule(session.mod,true));
+$("doneHome").addEventListener("click",()=>{ renderHome(); show("home"); });
+document.addEventListener("keydown",e=>{
+  if($("study").classList.contains("hidden"))return;
+  if(e.code==="Space"||e.code==="Enter"){ e.preventDefault(); flip(); }
+  else if(e.key==="1") mark("learning");
+  else if(e.key==="2") mark("known");
+  else if(e.key==="p"||e.key==="P"){ const c=curCard(); speak(c.type==="jamo"?c.audio:c.ko,$("spk1")); }
+});
+
+// ---- backup ----
+function _dl(name,text){ const b=new Blob([text],{type:"application/json"}); const u=URL.createObjectURL(b); const a=document.createElement("a"); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),1000); }
+$("backupBtn").addEventListener("click",()=>{ $("importText").value=""; $("backupModal").classList.add("show"); });
+$("backupClose").addEventListener("click",()=>$("backupModal").classList.remove("show"));
+$("backupModal").addEventListener("click",e=>{ if(e.target.id==="backupModal") $("backupModal").classList.remove("show"); });
+$("exportBtn").addEventListener("click",()=>{ const p=JSON.stringify({app:STORAGE_KEY,v:1,data:state}); $("backupText").value=p; _dl("korean-progress.json",p); try{navigator.clipboard.writeText(p);}catch(e){} });
+function importProgress(text){ let o; try{o=JSON.parse(text);}catch(e){ alert("Invalid format."); return; } const d=(o&&o.data)?o.data:o; if(!d||typeof d!=="object"||!d.status){ alert("No progress data found."); return; } state=Object.assign({status:{},lang:state.lang},d); saveState(); [...$("langTog").children].forEach(x=>x.classList.toggle("on",x.dataset.lang===state.lang)); renderHome(); show("home"); $("backupModal").classList.remove("show"); alert("Imported! Learned: "+Object.values(state.status).filter(s=>s==="known").length); }
+$("importBtn").addEventListener("click",()=>{ const t=$("importText").value.trim(); if(t)importProgress(t); else alert("Paste a code first."); });
+$("importFile").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>importProgress(String(r.result)); r.readAsText(f); });
+$("modalReset").addEventListener("click",()=>{ if(confirm("Reset all progress on this device?")){ clearState(); renderHome(); show("home"); $("backupModal").classList.remove("show"); } });
+
+// ---- init ----
+(function init(){ state=loadState(); [...$("langTog").children].forEach(x=>x.classList.toggle("on",x.dataset.lang===state.lang)); renderHome(); })();
+</script>
+</body>
+</html>
