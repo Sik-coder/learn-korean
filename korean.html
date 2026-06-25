@@ -116,6 +116,14 @@
   .replay{display:flex; gap:9px; margin-top:18px}
 
   .hint{position:absolute; bottom:42px; left:0; right:0; font-size:12.5px; color:var(--faint); display:flex; align-items:center; justify-content:center; gap:6px}
+  .practice{display:flex; gap:8px; align-items:center; margin-top:12px}
+  .recbtn{display:inline-flex; align-items:center; gap:7px; background:var(--paper); border:1.5px solid var(--line); color:var(--muted); font-family:var(--eng); font-weight:600; font-size:12.5px; padding:8px 14px; border-radius:99px; transition:background .15s, border-color .15s, color .15s}
+  .recbtn:hover{border-color:var(--accent-soft)}
+  .recbtn .micdot{width:9px; height:9px; border-radius:50%; background:#C0504D; display:inline-block}
+  .recbtn.recording{background:#FBE9E9; border-color:#F0B9B9; color:#A33}
+  .recbtn.recording .micdot{animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .recbtn.play{background:var(--accent-soft); border-color:var(--accent-soft); color:var(--accent-dark)}
   .hint .dot{display:inline-block; width:5px; height:5px; background:var(--faint); border-radius:50%; animation:blink 1.4s infinite}
   @keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
   .back-face{transform:rotateY(180deg); background:var(--paper)}
@@ -161,6 +169,14 @@
   .qopt.dim{opacity:.5}
   .qopt:disabled{cursor:default}
   .qfeedback{height:22px; margin-top:14px; font-size:14px; font-weight:700}
+  .qwrite{display:flex; flex-direction:column; gap:10px; margin-top:18px}
+  .qinput{width:100%; text-align:center; font-family:var(--kor); font-size:24px; font-weight:700; color:var(--ink); background:var(--paper); border:1.5px solid var(--line); border-radius:14px; padding:14px 12px}
+  .qinput:focus{outline:none; border-color:var(--accent)}
+  .qinput.correct{background:var(--green-soft); border-color:#A9D3B4; color:#256137}
+  .qinput.wrong{background:#FBE9E9; border-color:#F0B9B9; color:#A33}
+  .qcheck{background:var(--accent); color:#fff; font-weight:700; font-size:15px; padding:14px; border-radius:14px}
+  .qcheck:disabled{opacity:.5}
+  .qanswer{font-family:var(--kor); font-size:15px; font-weight:700; color:var(--green)}
   .qfeedback.ok{color:var(--green)}
   .qfeedback.no{color:#C0504D}
 
@@ -242,6 +258,12 @@
             <svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a4.5 4.5 0 0 1 0 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
             <span id="spk1lbl">Listen</span>
           </button>
+          <div class="practice" id="practice">
+            <button class="recbtn" id="recBtn" type="button" aria-label="record">
+              <span class="micdot"></span><span id="recLbl">Speak</span>
+            </button>
+            <button class="recbtn play hidden" id="playMine" type="button">▶ <span id="playLbl">My voice</span></button>
+          </div>
           <span class="hint" id="frontHint">tap to flip <span class="dot"></span></span>
           <span class="corner" id="fCorner">1 / 24</span>
         </div>
@@ -285,6 +307,10 @@
           <span id="qListenLbl">Listen</span>
         </button>
         <div class="qopts" id="qOpts"></div>
+        <div class="qwrite hidden" id="qWrite">
+          <input id="qInput" class="qinput kr" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" />
+          <button class="qcheck" id="qCheckBtn" type="button">Check</button>
+        </div>
         <div class="qfeedback" id="qFeedback"></div>
       </div>
     </div>
@@ -393,6 +419,12 @@ const INTER_TITLES = [
 ["Relationships & Personality","인간관계·성격","🤝"],
 ["Food, Cooking & Taste","음식·요리·맛","🍳"],
 ["Travel & Transport","여행·교통","✈️"],
+["Health & Body (deeper)","건강·몸 심화","🩺"],
+["Home & Living","집·생활·살림","🏡"],
+["School & Study (deeper)","학교·공부 심화","🎓"],
+["Society & News","사회·뉴스·시사","📰"],
+["Opinions & Debate","의견·토론·설득","💬"],
+["Time & Sequence (deeper)","시간·순서·빈도 심화","⏳"],
 ];
 
 /* 초급 단어 (Day별) */
@@ -1232,6 +1264,198 @@ const INTER_DAYS = [
 ["여유","yeoyu","Leisure / Margin / Relaxedness","Tranquilidad / Margen","Having spare time, room, or a relaxed mind. '여유가 있다' = to have leeway.","Tener tiempo, espacio o calma. '여유가 있다' = tener margen.","여유 있게 여행하고 싶어요.","yeoyu itge yeohaenghago sipeoyo.","I want to travel at a relaxed pace.","Quiero viajar con calma."],
 ["혼잡하다","honjapada","To be crowded / congested","Estar abarrotado","Crowded and busy (places, transport). Polite: 혼잡해요.","Abarrotado y concurrido (lugares, transporte). Cortés: 혼잡해요.","출퇴근 시간에는 지하철이 혼잡해요.","chultoegeun siganeneun jihacheori honjapaeyo.","The subway is crowded at rush hour.","El metro está abarrotado en hora punta."],
 ["떠나다","tteonada","To leave / depart","Partir / irse","To leave a place, set off on a trip. Polite: 떠나요 (tteonayo).","Irse de un lugar, salir de viaje. Cortés: 떠나요 (tteonayo).","내일 여행을 떠나요.","naeil yeohaengeul tteonayo.","I leave on a trip tomorrow.","Mañana salgo de viaje."]
+],
+[
+["증상","jeungsang","Symptom","Síntoma","A symptom of illness. '증상이 있다' = to have symptoms.","Un síntoma de enfermedad. '증상이 있다' = tener síntomas.","어떤 증상이 있으세요?","eotteon jeungsangi isseuseyo?","What symptoms do you have?","¿Qué síntomas tiene?"],
+["진료","jillyo","Medical treatment / Consultation","Consulta médica","Seeing a doctor for examination. '진료를 받다' = to get examined.","Ver al médico para un examen. '진료를 받다' = ser atendido.","오전에만 진료해요.","ojeonemanjillyohaeyo.","They only see patients in the morning.","Solo atienden por la mañana."],
+["처방","cheobang","Prescription","Receta médica","A doctor's prescription. 처방하다 = to prescribe. '처방을 받다'.","Una receta del médico. 처방하다 = recetar. '처방을 받다'.","의사가 약을 처방했어요.","uisaga yageul cheobanghaesseoyo.","The doctor prescribed medicine.","El médico recetó medicina."],
+["진통제","jintongje","Painkiller","Analgésico","Pain-relief medicine. 진통 (pain relief) + 제 (agent).","Medicina para el dolor. 진통 (alivio del dolor) + 제 (agente).","두통이 심해서 진통제를 먹었어요.","dutongi simhaeseo jintongjereul meogeosseoyo.","I took a painkiller for my bad headache.","Tomé un analgésico por el fuerte dolor de cabeza."],
+["체온","cheon","Body temperature","Temperatura corporal","Body temperature. '체온을 재다' = to take one's temperature.","La temperatura corporal. '체온을 재다' = tomar la temperatura.","체온을 재 보세요.","cheoneul jae boseyo.","Please take your temperature.","Tómese la temperatura."],
+["어지럽다","eojireopda","To feel dizzy","Estar mareado","To feel dizzy. Polite: 어지러워요 (eojireowoyo).","Sentirse mareado. Cortés: 어지러워요 (eojireowoyo).","갑자기 어지러웠어요.","gapjagi eojireowosseoyo.","I suddenly felt dizzy.","De repente me mareé."],
+["붓다","butda","To swell","Hincharse","A body part swelling up. Polite: 부어요 (bueoyo).","Que una parte del cuerpo se hinche. Cortés: 부어요 (bueoyo).","발목이 부었어요.","balmogi bueosseoyo.","My ankle is swollen.","Se me ha hinchado el tobillo."],
+["토하다","tohada","To vomit","Vomitar","To throw up. Polite: 토해요 (tohaeyo).","Vomitar. Cortés: 토해요 (tohaeyo).","속이 안 좋아서 토했어요.","sogi an joaseo tohaesseoyo.","I felt sick and threw up.","Me sentí mal y vomité."],
+["설사","seolsa","Diarrhea","Diarrea","Diarrhea. '설사를 하다' = to have diarrhea.","Diarrea. '설사를 하다' = tener diarrea.","어제부터 설사를 해요.","eojebuteo seolsareul haeyo.","I've had diarrhea since yesterday.","Tengo diarrea desde ayer."],
+["소화","sohwa","Digestion","Digestión","Digestion. '소화가 안 되다' = to have indigestion.","Digestión. '소화가 안 되다' = tener indigestión.","소화가 잘 안 돼요.","sohwaga jal an dwaeyo.","My digestion isn't good.","No hago bien la digestión."],
+["피곤이 쌓이다","pigoni ssaida","To accumulate fatigue","Acumular cansancio","Set phrase: fatigue builds up. 쌓이다 = to pile up.","Frase: acumularse el cansancio. 쌓이다 = acumularse.","요즘 피곤이 쌓였어요.","yojeum pigoni ssayeosseoyo.","Fatigue has built up lately.","Últimamente se me acumuló el cansancio."],
+["몸살","momsal","Body aches (from fatigue)","Malestar general","Aches and weakness from overwork or a cold. '몸살이 나다'.","Dolores y debilidad por agotamiento o resfriado. '몸살이 나다'.","무리해서 몸살이 났어요.","murihaeseo momsari nasseoyo.","I overdid it and got body aches.","Me excedí y me dio malestar."],
+["입원하다","ibwonhada","To be hospitalized","Ingresar (hospital)","To be admitted to hospital. Polite: 입원해요. Opposite: 퇴원하다.","Ingresar en el hospital. Cortés: 입원해요. Contrario: 퇴원하다.","할아버지가 입원하셨어요.","harabeojiga ibwonhasyeosseoyo.","My grandfather was hospitalized.","Mi abuelo ingresó en el hospital."],
+["퇴원하다","toewonhada","To be discharged","Recibir el alta","To leave the hospital. Polite: 퇴원해요.","Salir del hospital. Cortés: 퇴원해요.","다음 주에 퇴원해요.","daeum jue toewonhaeyo.","I'll be discharged next week.","Me dan el alta la próxima semana."],
+["수술","susul","Surgery / Operation","Cirugía / Operación","Surgery. 수술하다 = to operate. '수술을 받다' = to undergo surgery.","Cirugía. 수술하다 = operar. '수술을 받다' = someterse a cirugía.","무릎 수술을 받았어요.","mureup susureul badasseoyo.","I had knee surgery.","Me operaron de la rodilla."],
+["검사","geomsa","Examination / Test","Examen / Prueba","A medical test/check. '검사를 받다' = to get tested.","Un examen/prueba médica. '검사를 받다' = hacerse pruebas.","피 검사를 했어요.","pi geomsareul haesseoyo.","I had a blood test.","Me hice un análisis de sangre."],
+["건강검진","geongangeomjin","Health checkup","Chequeo médico","A regular health checkup. Common annually in Korea.","Un chequeo médico periódico. Común anualmente en Corea.","해마다 건강검진을 받아요.","haemada geongangeomjineul badayo.","I get a health checkup every year.","Me hago un chequeo cada año."],
+["낫다","natda","To recover / heal","Curarse","To recover (seen in beginner). '병이 낫다' = to get well.","Curarse (visto en básico). '병이 낫다' = sanar.","푹 쉬면 곧 나을 거예요.","puk swimyeon got naeul geoyeyo.","If you rest well, you'll recover soon.","Si descansas bien, te curarás pronto."],
+["예방하다","yebanghada","To prevent","Prevenir","To prevent illness. Polite: 예방해요. '예방 접종' = vaccination.","Prevenir enfermedades. Cortés: 예방해요. '예방 접종' = vacunación.","손을 씻으면 감기를 예방해요.","soneul ssiseumyeon gamgireul yebanghaeyo.","Washing hands prevents colds.","Lavarse las manos previene resfriados."],
+["주사","jusa","Injection / Shot","Inyección","An injection/shot. '주사를 맞다' = to get a shot.","Una inyección. '주사를 맞다' = ponerse una inyección.","독감 주사를 맞았어요.","dokgam jusareul majasseoyo.","I got a flu shot.","Me puse la vacuna de la gripe."],
+["참다","chamda","To endure (pain)","Aguantar (dolor)","To bear pain (seen in Inter Day 1). '아픔을 참다'.","Aguantar el dolor (visto en Inter Día 1). '아픔을 참다'.","아픈 걸 참지 마세요.","apeun geol chamji maseyo.","Don't endure the pain (silently).","No aguantes el dolor (en silencio)."],
+["회복하다","hoebokhada","To recover","Recuperarse","To recover health/strength (formal). Polite: 회복해요.","Recuperar la salud/fuerzas (formal). Cortés: 회복해요.","빨리 회복하길 바라요.","ppalli hoebokhagil barayo.","I hope you recover quickly.","Espero que te recuperes pronto."],
+["건강을 챙기다","geongangeul chaenggida","To take care of one's health","Cuidar la salud","Set phrase: to look after one's health.","Frase: cuidar de la propia salud.","바빠도 건강을 챙기세요.","bappado geongangeul chaenggiseyo.","Take care of your health even when busy.","Cuida tu salud aunque estés ocupado."],
+["식습관","sikseupgwan","Eating habits","Hábitos alimentarios","One's eating habits. 식 (eat) + 습관 (habit).","Los hábitos de alimentación. 식 (comer) + 습관 (hábito).","식습관을 바꿨어요.","sikseupgwaneul bakkwosseoyo.","I changed my eating habits.","Cambié mis hábitos alimentarios."],
+["규칙적","gyuchikjeok","Regular / Consistent","Regular","Done on a regular schedule. '규칙적으로 운동하다'.","Hecho con regularidad. '규칙적으로 운동하다'.","규칙적으로 자고 일어나요.","gyuchikjeogeuro jago ireonayo.","I sleep and wake on a regular schedule.","Duermo y me levanto con regularidad."],
+["무리하다","murihada","To overdo / overexert","Excederse","To push oneself too hard. Polite: 무리해요. '무리하지 마세요'.","Esforzarse en exceso. Cortés: 무리해요. '무리하지 마세요'.","무리하지 말고 쉬세요.","murihaji malgo swiseyo.","Don't overdo it; get some rest.","No te excedas; descansa."],
+["챙겨 먹다","chaenggyeo meokda","To eat properly / regularly","Comer como es debido","Set phrase: to make sure to eat (meals, medicine).","Frase: asegurarse de comer (comidas, medicina).","끼니를 잘 챙겨 먹어요.","kkinireul jal chaenggyeo meogeoyo.","I make sure to eat my meals.","Me aseguro de comer bien."],
+["스트레스를 풀다","seuteureseureul pulda","To relieve stress","Aliviar el estrés","Set phrase: to release stress. 풀다 = to loosen/release.","Frase: liberar el estrés. 풀다 = soltar/liberar.","운동으로 스트레스를 풀어요.","undongeuro seuteureseureul pureoyo.","I relieve stress through exercise.","Alivio el estrés con ejercicio."],
+["푹 쉬다","puk swida","To rest well / deeply","Descansar a fondo","Set phrase: to rest fully. 푹 = deeply/soundly.","Frase: descansar a fondo. 푹 = profundamente.","주말에는 푹 쉬어요.","jumareneun puk swieoyo.","I rest well on weekends.","Los fines de semana descanso a fondo."],
+["건강하다","geonganghada","To be healthy","Estar sano","To be healthy. Polite: 건강해요. '건강하세요' = Stay healthy.","Estar sano. Cortés: 건강해요. '건강하세요' = Cuídate.","항상 건강하세요.","hangsang geonganghaseyo.","Stay healthy always.","Que sigas siempre con salud."]
+],
+[
+["이사","isa","Moving (house)","Mudanza","Moving to a new home. 이사하다 = to move. '이사를 가다'.","Mudarse de casa. 이사하다 = mudarse. '이사를 가다'.","다음 달에 이사해요.","daeum dare isahaeyo.","I'm moving next month.","Me mudo el mes que viene."],
+["계약","gyeyak","Contract / Lease","Contrato","A contract, e.g., a housing lease (seen in Inter Day 2). '전세 계약'.","Un contrato, p.ej. de alquiler (visto en Inter Día 2). '전세 계약'.","집 계약을 했어요.","jip gyeyageul haesseoyo.","I signed the housing contract.","Firmé el contrato de la vivienda."],
+["월세","wolse","Monthly rent","Alquiler mensual","Monthly rent. 월 (month) + 세 (rent). Compare 전세 (lump-sum deposit).","Alquiler mensual. 월 (mes) + 세 (alquiler). Compara 전세 (depósito único).","월세가 좀 비싸요.","wolsega jom bissayo.","The monthly rent is a bit high.","El alquiler mensual es algo caro."],
+["가구","gagu","Furniture","Muebles","Furniture (beds, sofas, tables). '가구를 사다' = to buy furniture.","Muebles (camas, sofás, mesas). '가구를 사다' = comprar muebles.","새 가구를 들였어요.","sae gagureul deuryeosseoyo.","I got new furniture.","Compré muebles nuevos."],
+["가전제품","gajeonjepum","Home appliances","Electrodomésticos","Household electronics (fridge, washer, etc.).","Electrodomésticos (nevera, lavadora, etc.).","가전제품이 다 갖춰져 있어요.","gajeonjepumi da gatchwojyeo isseoyo.","The appliances are all provided.","Los electrodomésticos están todos incluidos."],
+["세탁기","setalgi","Washing machine","Lavadora","A washing machine. 세탁 (laundry) + 기 (machine).","Una lavadora. 세탁 (lavado) + 기 (máquina).","세탁기가 고장 났어요.","setalgiga gojang nasseoyo.","The washing machine broke down.","La lavadora se averió."],
+["청소기","cheongsogi","Vacuum cleaner","Aspiradora","A vacuum cleaner. 청소 (cleaning) + 기 (machine).","Una aspiradora. 청소 (limpieza) + 기 (máquina).","청소기로 바닥을 청소해요.","cheongsogiro badageul cheongsohaeyo.","I vacuum the floor.","Aspiro el suelo."],
+["고장 나다","gojang nada","To break down / malfunction","Averiarse","Set phrase: a device breaks. '고장 나다' = to stop working.","Frase: que un aparato se rompa. '고장 나다' = dejar de funcionar.","에어컨이 고장 났어요.","eeokeoni gojang nasseoyo.","The air conditioner broke down.","El aire acondicionado se averió."],
+["수리하다","surihada","To repair","Reparar","To repair/fix. Polite: 수리해요. Noun 수리 = repair.","Reparar/arreglar. Cortés: 수리해요. 수리 = reparación.","기사님이 수리하러 왔어요.","gisanimi surihareo wasseoyo.","A technician came to repair it.","Vino un técnico a repararlo."],
+["고치다","gochida","To fix / mend","Arreglar","To fix something (or correct/cure). Polite: 고쳐요 (gochyeoyo).","Arreglar algo (o corregir/curar). Cortés: 고쳐요.","고장 난 의자를 고쳤어요.","gojang nan uijareul gochyeosseoyo.","I fixed the broken chair.","Arreglé la silla rota."],
+["정리정돈","jeongnijeongdon","Tidying up / Organizing","Orden y organización","Set phrase: keeping things tidy and organized.","Frase: mantener todo ordenado y organizado.","주말마다 정리정돈을 해요.","jumalmada jeongnijeongdoneul haeyo.","I tidy up every weekend.","Ordeno todo cada fin de semana."],
+["버리다","beorida","To throw away","Tirar","To throw away/discard. Polite: 버려요 (beoryeoyo).","Tirar/desechar. Cortés: 버려요 (beoryeoyo).","쓰레기를 버려요.","sseuregireul beoryeoyo.","I throw out the trash.","Tiro la basura."],
+["분리수거","bunlisugeo","Recycling (sorting)","Reciclaje (separación)","Separating trash for recycling — a strict daily practice in Korea.","Separar la basura para reciclar — una práctica diaria estricta en Corea.","분리수거를 잘해야 해요.","bunlisugeoreul jalhaeya haeyo.","You must sort the recycling properly.","Hay que separar bien el reciclaje."],
+["쓰레기","sseuregi","Trash / Garbage","Basura","Trash/garbage. 음식물 쓰레기 = food waste.","Basura. 음식물 쓰레기 = residuos de comida.","쓰레기를 내놓았어요.","sseuregireul naenoasseoyo.","I put out the trash.","Saqué la basura."],
+["전기세","jeongise","Electricity bill","Factura de luz","The electricity bill. Similar: 수도세 (water), 가스비 (gas).","La factura de la luz. Similar: 수도세 (agua), 가스비 (gas).","여름에는 전기세가 많이 나와요.","yeoreumeneun jeongisega mani nawayo.","The electricity bill is high in summer.","En verano la factura de la luz es alta."],
+["관리비","gwallibi","Maintenance fee","Gastos de comunidad","Building maintenance fee for apartments.","Cuota de mantenimiento del edificio (pisos).","아파트 관리비를 냈어요.","apateu gwallibireul naesseoyo.","I paid the apartment maintenance fee.","Pagué los gastos de comunidad del piso."],
+["집안일","jibanil","Housework / Chores","Tareas del hogar","Household chores. 집안 (inside the home) + 일 (work).","Tareas domésticas. 집안 (dentro de casa) + 일 (trabajo).","집안일을 나눠서 해요.","jibanireul nanwoseo haeyo.","We share the housework.","Repartimos las tareas del hogar."],
+["빨래를 널다","ppallaereul neolda","To hang the laundry","Tender la ropa","Set phrase: to hang washed clothes to dry. 널다 = to spread out.","Frase: tender la ropa lavada. 널다 = extender.","빨래를 베란다에 널어요.","ppallaereul berandae neoreoyo.","I hang the laundry on the balcony.","Tiendo la ropa en el balcón."],
+["바닥","badak","Floor / Ground","Suelo","The floor (of a room). '바닥을 닦다' = to wipe the floor.","El suelo (de una habitación). '바닥을 닦다' = fregar el suelo.","바닥을 깨끗이 닦았어요.","badageul kkaekkeusi dakkasseoyo.","I wiped the floor clean.","Limpié bien el suelo."],
+["벽","byeok","Wall","Pared","A wall. '벽에 그림을 걸다' = to hang a picture on the wall.","Una pared. '벽에 그림을 걸다' = colgar un cuadro en la pared.","벽에 사진을 걸었어요.","byeoge sajineul georeosseoyo.","I hung a photo on the wall.","Colgué una foto en la pared."],
+["천장","cheonjang","Ceiling","Techo","The ceiling of a room. Opposite of 바닥.","El techo de una habitación. Contrario de 바닥.","천장에서 물이 새요.","cheonjangeseo muri saeyo.","Water is leaking from the ceiling.","Gotea agua del techo."],
+["수도","sudo","Water supply / Tap","Agua corriente / Grifo","Running water/tap. '수도를 틀다' = to turn on the tap.","Agua corriente/grifo. '수도를 틀다' = abrir el grifo.","수도에서 물이 안 나와요.","sudoeseo muri an nawayo.","No water comes from the tap.","No sale agua del grifo."],
+["전등","jeondeung","Light / Lamp","Lámpara / Luz","An electric light/lamp. '전등을 켜다/끄다'.","Una luz/lámpara eléctrica. '전등을 켜다/끄다'.","전등이 너무 어두워요.","jeondeungi neomu eoduwoyo.","The light is too dim.","La luz es demasiado tenue."],
+["켜다","kyeoda","To turn on","Encender","To turn on (light, device). Polite: 켜요 (kyeoyo). Opposite: 끄다.","Encender (luz, aparato). Cortés: 켜요. Contrario: 끄다.","불을 켜 주세요.","bureul kyeo juseyo.","Please turn on the light.","Enciende la luz, por favor."],
+["끄다","kkeuda","To turn off","Apagar","To turn off (light, device). Polite: 꺼요 (kkeoyo).","Apagar (luz, aparato). Cortés: 꺼요 (kkeoyo).","나갈 때 불을 꺼요.","nagal ttae bureul kkeoyo.","I turn off the lights when leaving.","Apago las luces al salir."],
+["편리하다","pyeollihada","To be convenient","Ser conveniente","Convenient (more formal than 편하다). Polite: 편리해요.","Conveniente (más formal que 편하다). Cortés: 편리해요.","교통이 편리해요.","gyotongi pyeollihaeyo.","The transportation is convenient.","El transporte es conveniente."],
+["좁다","jopda","To be cramped","Ser estrecho","Cramped/narrow (seen in beginner). For small rooms.","Estrecho/apretado (visto en básico). Para cuartos pequeños.","원룸이 좀 좁아요.","wonrumi jom jobayo.","The studio is a bit cramped.","El estudio es un poco pequeño."],
+["살림","sallim","Household / Housekeeping","Quehaceres del hogar","Running a household. '살림을 하다' = to keep house.","Llevar la casa. '살림을 하다' = ocuparse del hogar.","혼자 살림을 해요.","honja sallimeul haeyo.","I run the household alone.","Llevo la casa yo solo."],
+["입주하다","ipjuhada","To move in","Instalarse (en vivienda)","To move into a new place. Polite: 입주해요.","Instalarse en una vivienda nueva. Cortés: 입주해요.","새 아파트에 입주했어요.","sae apateue ipjuhaesseoyo.","I moved into a new apartment.","Me instalé en un piso nuevo."],
+["청소를 하다","cheongsoreul hada","To do the cleaning","Hacer la limpieza","Set phrase: to clean (the home). Same root as 청소하다.","Frase: hacer la limpieza (del hogar). Misma raíz que 청소하다.","주말에 대청소를 해요.","jumare daecheongsoreul haeyo.","I do a big cleaning on weekends.","Hago una limpieza grande los fines de semana."]
+],
+[
+["전공","jeongong","Major (field of study)","Especialidad / Carrera","One's academic major. '전공이 뭐예요?' = What's your major?","La especialidad académica. '전공이 뭐예요?' = ¿Qué estudias?","제 전공은 경제학이에요.","je jeongongeun gyeongjehagieyo.","My major is economics.","Mi carrera es Economía."],
+["학기","hakgi","Semester","Semestre","An academic semester. 1학기, 2학기.","Un semestre académico. 1학기, 2학기.","이번 학기는 바빠요.","ibeon hakgineun bappayo.","This semester is busy.","Este semestre estoy ocupado."],
+["강의","gangui","Lecture","Clase magistral","A university lecture. '강의를 듣다' = to take a lecture.","Una clase magistral. '강의를 듣다' = asistir a una clase.","오늘 강의가 세 개 있어요.","oneul gänguiga se gae isseoyo.","I have three lectures today.","Hoy tengo tres clases."],
+["과제","gwaje","Assignment / Task","Trabajo / Tarea","A school assignment (more formal than 숙제). '과제를 제출하다'.","Un trabajo escolar (más formal que 숙제). '과제를 제출하다'.","과제 마감이 내일이에요.","gwaje magami naeirieyo.","The assignment deadline is tomorrow.","La entrega del trabajo es mañana."],
+["발표","balpyo","Presentation","Presentación","A presentation. 발표하다 = to present. '발표를 하다'.","Una presentación. 발표하다 = presentar. '발표를 하다'.","내일 발표가 있어요.","naeil balpyoga isseoyo.","I have a presentation tomorrow.","Mañana tengo una presentación."],
+["제출하다","jechulhada","To submit / hand in","Entregar","To submit work (seen briefly before). Polite: 제출해요.","Entregar un trabajo (visto antes brevemente). Cortés: 제출해요.","보고서를 제출했어요.","bogoseoreul jechulhaesseoyo.","I submitted the report.","Entregué el informe."],
+["성적","seongjeok","Grades / Results","Notas / Calificaciones","Academic grades. '성적이 오르다' = grades go up.","Las notas académicas. '성적이 오르다' = subir las notas.","성적이 많이 올랐어요.","seongjeogi mani ollasseoyo.","My grades went up a lot.","Mis notas subieron mucho."],
+["점수","jeomsu","Score / Points","Puntuación","A score on a test. '점수를 받다' = to get a score.","Una puntuación en un examen. '점수를 받다' = obtener una nota.","시험 점수가 좋아요.","siheom jeomsuga joayo.","My test score is good.","Mi nota del examen es buena."],
+["복습하다","bokseuphada","To review (study)","Repasar","To review what was learned. Polite: 복습해요. Opposite: 예습하다.","Repasar lo aprendido. Cortés: 복습해요. Contrario: 예습하다.","수업 후에 복습해요.","sueop hue bokseuphaeyo.","I review after class.","Repaso después de clase."],
+["예습하다","yeseuphada","To prepare (study ahead)","Estudiar por adelantado","To pre-study before class. Polite: 예습해요.","Estudiar antes de la clase. Cortés: 예습해요.","미리 예습하면 좋아요.","miri yeseuphamyeon joayo.","It's good to prepare in advance.","Es bueno estudiar por adelantado."],
+["집중하다","jipjunghada","To concentrate","Concentrarse","To focus/concentrate. Polite: 집중해요. '집중이 안 되다'.","Concentrarse. Cortés: 집중해요. '집중이 안 되다'.","공부에 집중해요.","gongbue jipjunghaeyo.","I concentrate on studying.","Me concentro en estudiar."],
+["이해가 되다","ihaega doeda","To make sense / be understood","Entenderse","Set phrase: something becomes understandable.","Frase: algo se vuelve comprensible.","설명을 들으니 이해가 돼요.","seolmyeongeul deureuni ihaega dwaeyo.","It makes sense after the explanation.","Tras la explicación, se entiende."],
+["외국어","oegugeo","Foreign language","Lengua extranjera","A foreign language. 외국 (foreign) + 어 (language).","Una lengua extranjera. 외국 (extranjero) + 어 (idioma).","외국어를 배우는 게 즐거워요.","oegugeoreul baeuneun ge jeulgeowoyo.","Learning a foreign language is fun.","Aprender un idioma es agradable."],
+["실력","sillyeok","Skill / Ability","Nivel / Habilidad","One's skill level. '실력이 늘다' = skill improves.","El nivel de habilidad de uno. '실력이 늘다' = mejorar.","한국어 실력이 늘었어요.","hangugeo sillyeogi neureosseoyo.","My Korean skills improved.","Mi nivel de coreano mejoró."],
+["늘다","neulda","To improve / increase","Mejorar / aumentar","To grow or improve (skill, amount). Polite: 늘어요 (neureoyo).","Mejorar o aumentar (habilidad, cantidad). Cortés: 늘어요.","연습하면 실력이 늘어요.","yeonseuphamyeon sillyeogi neureoyo.","If you practice, your skills improve.","Si practicas, mejoras."],
+["줄다","julda","To decrease","Disminuir","To decrease/shrink. Polite: 줄어요 (jureoyo). Opposite of 늘다.","Disminuir/reducirse. Cortés: 줄어요. Contrario de 늘다.","공부 시간이 줄었어요.","gongbu sigani jureosseoyo.","My study time decreased.","Mi tiempo de estudio disminuyó."],
+["졸업하다","joreophada","To graduate","Graduarse","To graduate from school. Polite: 졸업해요. Opposite: 입학하다.","Graduarse. Cortés: 졸업해요. Contrario: 입학하다.","작년에 대학을 졸업했어요.","jangnyeone daehageul joreophaesseoyo.","I graduated from university last year.","Me gradué de la universidad el año pasado."],
+["입학하다","ipakhada","To enroll / enter school","Matricularse","To enter/enroll in a school. Polite: 입학해요.","Matricularse/ingresar en una escuela. Cortés: 입학해요.","올해 대학에 입학했어요.","olhae daehage ipakhaesseoyo.","I entered university this year.","Este año ingresé en la universidad."],
+["장학금","janghakgeum","Scholarship","Beca","A scholarship. '장학금을 받다' = to get a scholarship.","Una beca. '장학금을 받다' = recibir una beca.","장학금을 받게 됐어요.","janghakgeumeul batge dwaesseoyo.","I got a scholarship.","Conseguí una beca."],
+["공부가 잘되다","gongbuga jaldoeda","Studying goes well","Cundir el estudio","Set phrase: studying is productive/goes smoothly.","Frase: que el estudio cunda/vaya bien.","조용한 곳에서 공부가 잘돼요.","joyonghan goseseo gongbuga jaldwaeyo.","I study well in a quiet place.","Estudio bien en un lugar tranquilo."],
+["밤을 새우다","bameul saeuda","To stay up all night","Pasar la noche en vela","Set phrase: to pull an all-nighter (e.g., studying).","Frase: pasar la noche sin dormir (p.ej. estudiando).","시험 때문에 밤을 새웠어요.","siheom ttaemune bameul saewosseoyo.","I stayed up all night for the exam.","Me quedé toda la noche por el examen."],
+["긴장하다","ginjanghada","To be nervous","Ponerse nervioso","To feel nervous/tense. Polite: 긴장해요. Before exams/presentations.","Sentirse nervioso/tenso. Cortés: 긴장해요. Antes de exámenes.","발표 전에 긴장했어요.","balpyo jeone ginjanghaesseoyo.","I was nervous before the presentation.","Me puse nervioso antes de la presentación."],
+["자신감","jasingam","Confidence","Confianza (en uno mismo)","Self-confidence. '자신감이 있다/없다'.","Confianza en uno mismo. '자신감이 있다/없다'.","발표를 잘해서 자신감이 생겼어요.","balpyoreul jalhaeseo jasingami saenggyeosseoyo.","I gained confidence after presenting well.","Gané confianza tras presentar bien."],
+["노트 필기","noteu pilgi","Note-taking","Tomar apuntes","Set phrase: taking notes in class. 필기하다 = to take notes.","Frase: tomar apuntes en clase. 필기하다 = apuntar.","노트 필기를 꼼꼼히 해요.","noteu pilgireul kkomkkomhi haeyo.","I take notes carefully.","Tomo apuntes con cuidado."],
+["어휘","eohwi","Vocabulary","Vocabulario","Vocabulary (more formal than 단어). '어휘를 늘리다'.","Vocabulario (más formal que 단어). '어휘를 늘리다'.","어휘를 많이 외웠어요.","eohwireul mani oewosseoyo.","I memorized a lot of vocabulary.","Memoricé mucho vocabulario."],
+["문법","munbeop","Grammar","Gramática","Grammar. '문법이 어렵다' = grammar is hard.","Gramática. '문법이 어렵다' = la gramática es difícil.","한국어 문법이 조금 어려워요.","hangugeo munbeobi jogeum eoryeowoyo.","Korean grammar is a little difficult.","La gramática coreana es algo difícil."],
+["배우다","baeuda","To learn","Aprender","To learn (seen in beginner). Core study verb.","Aprender (visto en básico). Verbo clave de estudio.","새로운 것을 배우는 게 좋아요.","saeroun geoseul baeuneun ge joayo.","I like learning new things.","Me gusta aprender cosas nuevas."],
+["가르침","gareuchim","Teaching / Lesson","Enseñanza","Teaching or a lesson learned (noun from 가르치다).","Enseñanza o una lección (sustantivo de 가르치다).","선생님의 가르침에 감사해요.","seonsaengnimui gareuchime gamsahaeyo.","I'm grateful for the teacher's teaching.","Agradezco la enseñanza del profesor."],
+["실수하다","silsuhada","To make a mistake","Cometer un error","To make a mistake. Polite: 실수해요. Noun 실수 = mistake.","Cometer un error. Cortés: 실수해요. 실수 = error.","실수해도 괜찮아요. 배우면 돼요.","silsuhaedo gwaenchanayo. baeumyeon dwaeyo.","It's okay to make mistakes. Just learn.","No pasa nada por errar. Solo aprende."],
+["합격","hapgyeok","Pass / Acceptance","Aprobado / Admisión","Passing an exam or getting accepted (noun). Opposite: 불합격.","Aprobar un examen o ser admitido (sustantivo). Contrario: 불합격.","시험 합격을 축하해요.","siheom hapgyeogeul chukahaeyo.","Congrats on passing the exam.","Felicidades por aprobar el examen."]
+],
+[
+["뉴스","nyuseu","News","Noticias","The news (loanword). '뉴스를 보다' = to watch the news.","Las noticias (préstamo). '뉴스를 보다' = ver las noticias.","매일 아침 뉴스를 봐요.","maeil achim nyuseureul bwayo.","I watch the news every morning.","Veo las noticias cada mañana."],
+["사회","sahoe","Society","Sociedad","Society. '사회 문제' = social issue. '사회생활' = social/work life.","La sociedad. '사회 문제' = problema social. '사회생활' = vida social/laboral.","사회 문제에 관심이 많아요.","sahoe munjee gwansimi manayo.","I'm very interested in social issues.","Me interesan mucho los problemas sociales."],
+["경제","gyeongje","Economy","Economía","The economy. '경제가 어렵다' = the economy is tough.","La economía. '경제가 어렵다' = la economía va mal.","요즘 경제가 어려워요.","yojeum gyeongjega eoryeowoyo.","The economy is tough these days.","Últimamente la economía va mal."],
+["정치","jeongchi","Politics","Política","Politics. '정치에 관심이 있다' = to be interested in politics.","La política. '정치에 관심이 있다' = interesarse por la política.","정치 뉴스는 복잡해요.","jeongchi nyuseuneun bokjapaeyo.","Political news is complicated.","Las noticias de política son complicadas."],
+["환경","hwangyeong","Environment","Medio ambiente","The environment. '환경 보호' = environmental protection.","El medio ambiente. '환경 보호' = protección del medio ambiente.","환경을 보호해야 해요.","hwangyeongeul bohohaeya haeyo.","We must protect the environment.","Debemos proteger el medio ambiente."],
+["문제","munje","Problem / Issue","Problema","A problem or issue (also a test question). '문제를 해결하다'.","Un problema o asunto (también pregunta de examen). '문제를 해결하다'.","이건 심각한 문제예요.","igeon simgakhan munjeyeyo.","This is a serious problem.","Esto es un problema grave."],
+["사건","sageon","Incident / Case","Suceso / Caso","An incident or event (often in news). '사건이 발생하다'.","Un suceso o caso (a menudo en noticias). '사건이 발생하다'.","어젯밤에 큰 사건이 있었어요.","eojetbame keun sageoni isseosseoyo.","There was a big incident last night.","Anoche hubo un gran suceso."],
+["사고","sago","Accident","Accidente","An accident. '교통사고' = traffic accident. '사고가 나다'.","Un accidente. '교통사고' = accidente de tráfico. '사고가 나다'.","교통사고가 났어요.","gyotongsagoga nasseoyo.","There was a traffic accident.","Hubo un accidente de tráfico."],
+["발생하다","balsaenghada","To occur / break out","Ocurrir / producirse","To occur (incidents, problems). Polite: 발생해요.","Ocurrir (sucesos, problemas). Cortés: 발생해요.","화재가 발생했어요.","hwajaega balsaenghaesseoyo.","A fire broke out.","Se produjo un incendio."],
+["영향","yeonghyang","Influence / Effect","Influencia / Efecto","Influence or effect. '영향을 미치다' = to affect.","Influencia o efecto. '영향을 미치다' = afectar.","날씨가 농사에 영향을 줘요.","nalssiga nongsae yeonghyangeul jwoyo.","Weather affects farming.","El clima influye en la agricultura."],
+["증가하다","jeunggahada","To increase","Aumentar","To increase (formal, for statistics). Polite: 증가해요. Opposite: 감소하다.","Aumentar (formal, para datos). Cortés: 증가해요. Contrario: 감소하다.","인구가 증가하고 있어요.","inguga jeunggahago isseoyo.","The population is increasing.","La población está aumentando."],
+["감소하다","gamsohada","To decrease","Disminuir","To decrease (formal). Polite: 감소해요. Opposite: 증가하다.","Disminuir (formal). Cortés: 감소해요. Contrario: 증가하다.","출생률이 감소했어요.","chulsaengnyuri gamsohaesseoyo.","The birth rate decreased.","La tasa de natalidad disminuyó."],
+["인구","ingu","Population","Población","Population. '인구가 많다/적다'.","La población. '인구가 많다/적다'.","서울은 인구가 많아요.","seoureun inguga manayo.","Seoul has a large population.","Seúl tiene mucha población."],
+["정부","jeongbu","Government","Gobierno","The government. '정부가 발표하다' = the government announces.","El gobierno. '정부가 발표하다' = el gobierno anuncia.","정부가 새 정책을 발표했어요.","jeongbuga sae jeongchaegeul balpyohaesseoyo.","The government announced a new policy.","El gobierno anunció una nueva política."],
+["정책","jeongchaek","Policy","Política (medida)","A policy/measure. '정책을 시행하다' = to implement a policy.","Una política/medida. '정책을 시행하다' = aplicar una política.","새 교육 정책이 나왔어요.","sae gyoyuk jeongchaegi nawasseoyo.","A new education policy came out.","Salió una nueva política educativa."],
+["법","beop","Law","Ley","Law. '법을 지키다' = to obey the law. '법을 어기다' = to break it.","La ley. '법을 지키다' = cumplir la ley. '법을 어기다' = infringirla.","법을 잘 지켜야 해요.","beobeul jal jikyeoya haeyo.","We must obey the law.","Hay que cumplir bien la ley."],
+["기사","gisa","Article / News report","Artículo / Noticia","A news article (also 'driver/engineer'). '기사를 읽다'.","Un artículo de noticias (también 'conductor/técnico'). '기사를 읽다'.","신문 기사를 읽었어요.","sinmun gisareul ilgeosseoyo.","I read a newspaper article.","Leí un artículo del periódico."],
+["보도하다","bodohada","To report (news)","Informar (prensa)","For media to report. Polite: 보도해요. Noun 보도 = report.","Que los medios informen. Cortés: 보도해요. 보도 = reportaje.","방송에서 그 사고를 보도했어요.","bangsongeseo geu sagoreul bodohaesseoyo.","The broadcast reported the accident.","La televisión informó del accidente."],
+["발표하다","balpyohada","To announce","Anunciar","To announce officially (also 'to present'). Polite: 발표해요.","Anunciar oficialmente (también 'presentar'). Cortés: 발표해요.","결과를 곧 발표할 거예요.","gyeolgwareul got balpyohal geoyeyo.","They'll announce the results soon.","Anunciarán los resultados pronto."],
+["심각하다","simgakhada","To be serious / severe","Ser grave","Serious/severe (problems). Polite: 심각해요.","Grave/serio (problemas). Cortés: 심각해요.","환경 오염이 심각해요.","hwangyeong oyeomi simgakhaeyo.","Environmental pollution is serious.","La contaminación es grave."],
+["오염","oyeom","Pollution","Contaminación","Pollution. '대기 오염' = air pollution. '오염되다' = to be polluted.","Contaminación. '대기 오염' = contaminación del aire. '오염되다' = contaminarse.","강물이 오염됐어요.","gangmuri oyeomdwaesseoyo.","The river water is polluted.","El agua del río está contaminada."],
+["줄이다","jurida","To reduce","Reducir","To reduce something. Polite: 줄여요 (juryeoyo).","Reducir algo. Cortés: 줄여요 (juryeoyo).","쓰레기를 줄여야 해요.","sseuregireul juryeoya haeyo.","We must reduce waste.","Hay que reducir los residuos."],
+["관심","gwansim","Interest / Attention","Interés","Interest or attention. '관심이 있다/없다'.","Interés o atención. '관심이 있다/없다'.","사람들이 그 뉴스에 관심이 많아요.","saramdeuri geu nyuseue gwansimi manayo.","People are very interested in that news.","La gente tiene mucho interés en esa noticia."],
+["참여하다","chamyeohada","To participate","Participar","To participate/take part. Polite: 참여해요.","Participar/tomar parte. Cortés: 참여해요.","봉사 활동에 참여했어요.","bongsa hwaldonge chamyeohaesseoyo.","I participated in volunteer work.","Participé en una actividad de voluntariado."],
+["봉사","bongsa","Volunteering / Service","Voluntariado","Volunteer service. '봉사 활동' = volunteer work.","Servicio voluntario. '봉사 활동' = trabajo voluntario.","주말에 봉사를 해요.","jumare bongsareul haeyo.","I volunteer on weekends.","Hago voluntariado los fines de semana."],
+["기부하다","gibuhada","To donate","Donar","To donate (money, goods). Polite: 기부해요. Noun 기부 = donation.","Donar (dinero, bienes). Cortés: 기부해요. 기부 = donación.","어려운 이웃에게 기부했어요.","eoryeoun iusege gibuhaesseoyo.","I donated to neighbors in need.","Doné a vecinos necesitados."],
+["세금","segeum","Tax","Impuesto","Tax. '세금을 내다' = to pay taxes.","Impuesto. '세금을 내다' = pagar impuestos.","매년 세금을 내요.","maenyeon segeumeul naeyo.","I pay taxes every year.","Pago impuestos cada año."],
+["일자리","iljari","Job / Employment","Empleo","A job/position (employment as a social issue). '일자리를 찾다'.","Un empleo/puesto (el empleo como tema social). '일자리를 찾다'.","청년 일자리가 부족해요.","cheongnyeon iljariga bujokhaeyo.","There aren't enough jobs for young people.","Faltan empleos para los jóvenes."],
+["세대","sedae","Generation","Generación","A generation. '젊은 세대' = the young generation.","Una generación. '젊은 세대' = la generación joven.","세대 간의 차이가 있어요.","sedae ganui chaiga isseoyo.","There are differences between generations.","Hay diferencias entre generaciones."],
+["변화","byeonhwa","Change","Cambio","A change (noun, formal). '변화가 생기다' = a change occurs.","Un cambio (sustantivo, formal). '변화가 생기다' = se produce un cambio.","사회가 빠르게 변화하고 있어요.","sahoega ppareuge byeonhwahago isseoyo.","Society is changing fast.","La sociedad cambia rápido."]
+],
+[
+["의견","uigyeon","Opinion","Opinión","An opinion. '의견을 말하다' = to give an opinion.","Una opinión. '의견을 말하다' = dar una opinión.","제 의견을 말해도 될까요?","je uigyeoneul malhaedo doelkkayo?","May I share my opinion?","¿Puedo dar mi opinión?"],
+["생각","saenggak","Thought / Idea","Pensamiento / Idea","A thought or idea. '제 생각에는' = in my opinion.","Un pensamiento o idea. '제 생각에는' = en mi opinión.","제 생각에는 그게 맞아요.","je saenggageneun geuge majayo.","In my opinion, that's right.","En mi opinión, eso es correcto."],
+["주장하다","jujanghada","To argue / assert","Sostener / afirmar","To assert one's claim. Polite: 주장해요. Noun 주장 = claim.","Sostener una postura. Cortés: 주장해요. 주장 = afirmación.","그는 자기 의견을 강하게 주장했어요.","geuneun jagi uigyeoneul ganghage jujanghaesseoyo.","He argued his point strongly.","Defendió su postura con firmeza."],
+["동의하다","donguihada","To agree","Estar de acuerdo","To agree with. Polite: 동의해요. '동의합니다' = I agree.","Estar de acuerdo. Cortés: 동의해요. '동의합니다' = de acuerdo.","저도 그 의견에 동의해요.","jeodo geu uigyeone donguihaeyo.","I agree with that opinion too.","Yo también estoy de acuerdo."],
+["반대하다","bandaehada","To oppose / disagree","Oponerse","To oppose/be against. Polite: 반대해요. Opposite: 찬성하다.","Oponerse/estar en contra. Cortés: 반대해요. Contrario: 찬성하다.","저는 그 계획에 반대해요.","jeoneun geu gyehoege bandaehaeyo.","I'm against that plan.","Estoy en contra de ese plan."],
+["찬성하다","chanseonghada","To approve / be in favor","Estar a favor","To agree/be in favor. Polite: 찬성해요. Opposite: 반대하다.","Estar a favor. Cortés: 찬성해요. Contrario: 반대하다.","대부분이 그 안에 찬성했어요.","daebubuni geu ane chanseonghaesseoyo.","Most were in favor of the proposal.","La mayoría estuvo a favor de la propuesta."],
+["설득하다","seoldeukada","To persuade","Persuadir","To persuade someone. Polite: 설득해요.","Persuadir a alguien. Cortés: 설득해요.","친구를 겨우 설득했어요.","chingureul gyeou seoldeukaesseoyo.","I barely managed to persuade my friend.","Apenas logré convencer a mi amigo."],
+["이유","iyu","Reason","Razón","A reason. '이유가 있다' = there's a reason. '이유를 설명하다'.","Una razón. '이유가 있다' = hay una razón.","그렇게 생각하는 이유가 뭐예요?","geureoke saenggakaneun iyuga mwoyeyo?","What's your reason for thinking so?","¿Cuál es tu razón para pensar así?"],
+["근거","geungeo","Basis / Grounds","Fundamento / Base","The basis/evidence for a claim. '근거가 있다'.","El fundamento/prueba de una afirmación. '근거가 있다'.","그 주장은 근거가 부족해요.","geu jujangeun geungeoga bujokhaeyo.","That claim lacks evidence.","Esa afirmación carece de fundamento."],
+["예를 들다","yereul deulda","To give an example","Poner un ejemplo","Set phrase: to give an example. '예를 들어' = for example.","Frase: poner un ejemplo. '예를 들어' = por ejemplo.","예를 들어 설명해 주세요.","yereul deureo seolmyeonghae juseyo.","Please explain with an example.","Explíquelo con un ejemplo, por favor."],
+["반면에","banmyeone","On the other hand","Por otro lado","Connector: 'on the other hand / whereas'. Contrasts two ideas.","Conector: 'por otro lado / mientras que'. Contrasta dos ideas.","형은 활발해요. 반면에 동생은 조용해요.","hyeongeun hwalbalhaeyo. banmyeone dongsaengeun joyonghaeyo.","My brother is lively; on the other hand, my sibling is quiet.","Mi hermano es animado; por otro lado, mi hermano menor es callado."],
+["오히려","ohiryeo","Rather / On the contrary","Más bien / Al contrario","Means 'rather/instead', against expectation.","Significa 'más bien/al contrario', contra lo esperado.","비싸지만 오히려 품질이 안 좋아요.","bissajiman ohiryeo pumjiri an joayo.","It's expensive, but rather low quality.","Es caro, pero más bien de baja calidad."],
+["사실","sasil","Fact / Actually","Hecho / En realidad","'A fact', or 'actually' as a discourse word. '사실은' = the truth is.","'Un hecho', o 'en realidad'. '사실은' = la verdad es.","사실 저도 잘 몰라요.","sasil jeodo jal mollayo.","Actually, I'm not sure either.","En realidad, yo tampoco lo sé bien."],
+["분명히","bunmyeonghi","Clearly / Surely","Claramente / Sin duda","Means 'clearly/definitely'. Adds certainty to a statement.","Significa 'claramente/sin duda'. Añade certeza.","그건 분명히 사실이에요.","geugeon bunmyeonghi sasirieyo.","That is clearly true.","Eso es claramente cierto."],
+["아마","ama","Probably / Maybe","Probablemente / Quizá","Means 'probably'. Often paired with -(으)ㄹ 거예요.","Significa 'probablemente'. Suele ir con -(으)ㄹ 거예요.","아마 내일 비가 올 거예요.","ama naeil biga ol geoyeyo.","It will probably rain tomorrow.","Probablemente lloverá mañana."],
+["확실하다","hwaksilhada","To be certain","Ser seguro","To be sure/certain. Polite: 확실해요. Adverb 확실히 = surely.","Estar seguro. Cortés: 확실해요. Adverbio 확실히 = con seguridad.","아직 확실하지 않아요.","ajik hwaksilhaji anayo.","It's not certain yet.","Aún no es seguro."],
+["인정하다","injeonghada","To admit / acknowledge","Reconocer / admitir","To acknowledge/admit. Polite: 인정해요.","Reconocer/admitir. Cortés: 인정해요.","제 실수를 인정해요.","je silsureul injeonghaeyo.","I admit my mistake.","Reconozco mi error."],
+["반박하다","banbakada","To refute / counter","Refutar","To argue back/refute. Polite: 반박해요.","Refutar/rebatir. Cortés: 반박해요.","그 의견을 반박했어요.","geu uigyeoneul banbakaesseoyo.","I refuted that opinion.","Refuté esa opinión."],
+["토론","toron","Debate / Discussion","Debate","A formal debate or discussion. '토론을 하다'.","Un debate o discusión formal. '토론을 하다'.","수업 시간에 토론을 했어요.","sueop sigane toroneul haesseoyo.","We had a debate during class.","Tuvimos un debate en clase."],
+["입장","ipjang","Position / Stance","Postura","One's position/stance (also 'entrance'). '입장을 밝히다'.","La postura de uno (también 'entrada'). '입장을 밝히다'.","서로 입장이 달라요.","seoro ipjangi dallayo.","Our positions differ.","Nuestras posturas son diferentes."],
+["관점","gwanjeom","Point of view","Punto de vista","A viewpoint/perspective. '다른 관점에서 보다'.","Un punto de vista/perspectiva. '다른 관점에서 보다'.","다른 관점에서 생각해 봐요.","dareun gwanjeomeseo saenggakhae bwayo.","Let's think from a different point of view.","Pensémoslo desde otro punto de vista."],
+["결론","gyeollon","Conclusion","Conclusión","A conclusion. '결론을 내리다' = to reach a conclusion.","Una conclusión. '결론을 내리다' = llegar a una conclusión.","결론을 내리기 어려워요.","gyeolloneul naerigi eoryeowoyo.","It's hard to reach a conclusion.","Es difícil llegar a una conclusión."],
+["요약하다","yoyakada","To summarize","Resumir","To summarize. Polite: 요약해요. Noun 요약 = summary.","Resumir. Cortés: 요약해요. 요약 = resumen.","내용을 간단히 요약했어요.","naeyongeul gandanhi yoyakaesseoyo.","I briefly summarized the content.","Resumí brevemente el contenido."],
+["강조하다","gangjohada","To emphasize","Enfatizar","To emphasize/stress. Polite: 강조해요.","Enfatizar/recalcar. Cortés: 강조해요.","선생님이 그 점을 강조했어요.","seonsaengnimi geu jeomeul gangjohaesseoyo.","The teacher emphasized that point.","El profesor recalcó ese punto."],
+["비교하다","bigyohada","To compare","Comparar","To compare. Polite: 비교해요. Noun 비교 = comparison.","Comparar. Cortés: 비교해요. 비교 = comparación.","두 제품을 비교해 봤어요.","du jepumeul bigyohae bwasseoyo.","I compared the two products.","Comparé los dos productos."],
+["판단하다","pandanhada","To judge / assess","Juzgar / valorar","To judge/decide based on info. Polite: 판단해요.","Juzgar/valorar según la información. Cortés: 판단해요.","상황을 잘 판단해야 해요.","sanghwangeul jal pandanhaeya haeyo.","You must judge the situation well.","Hay que valorar bien la situación."],
+["설명","seolmyeong","Explanation","Explicación","An explanation (noun). 설명하다 = to explain.","Una explicación (sustantivo). 설명하다 = explicar.","설명이 아주 자세해요.","seolmyeongi aju jasaehaeyo.","The explanation is very detailed.","La explicación es muy detallada."],
+["의논하다","uinonhada","To discuss / consult","Deliberar / consultar","To discuss together to decide. Polite: 의논해요.","Deliberar juntos para decidir. Cortés: 의논해요.","부모님과 의논했어요.","bumonimgwa uinonhaesseoyo.","I discussed it with my parents.","Lo consulté con mis padres."],
+["솔직히","soljikhi","Honestly / Frankly","Sinceramente","Adverb: 'honestly/frankly'. From 솔직하다. Softens a frank opinion.","Adverbio: 'sinceramente'. De 솔직하다. Suaviza una opinión franca.","솔직히 저는 반대예요.","soljikhi jeoneun bandaeyeyo.","Honestly, I'm against it.","Sinceramente, estoy en contra."],
+["그러니까","geureonikka","So / That's why / I mean","O sea / Por eso","Connector: 'so/that's why' or 'I mean' to clarify.","Conector: 'o sea/por eso' o 'es decir' para aclarar.","그러니까 제 말은 이거예요.","geureonikka je mareun igeoyeyo.","So, what I mean is this.","O sea, lo que quiero decir es esto."]
+],
+[
+["최근","choegeun","Recently / Lately","Recientemente","Means 'recently'. '최근에' = lately.","Significa 'recientemente'. '최근에' = últimamente.","최근에 이사했어요.","choegeune isahaesseoyo.","I moved recently.","Me mudé hace poco."],
+["요즘","yojeum","These days","Hoy en día","Means 'these days/nowadays'. Common in conversation.","Significa 'estos días/hoy en día'. Común al conversar.","요즘 많이 바빠요.","yojeum mani bappayo.","I'm very busy these days.","Estos días estoy muy ocupado."],
+["예전","yejeon","The old days / Before","Antaño / Antes","The past/former times. '예전에는' = back in the day.","El pasado/tiempos antiguos. '예전에는' = antiguamente.","예전에는 여기가 시골이었어요.","yejeoneneun yeogiga sigorieosseoyo.","This used to be countryside.","Antes esto era campo."],
+["과거","gwageo","The past","El pasado","The past (formal). Contrast: 현재 (present), 미래 (future).","El pasado (formal). Contrasta: 현재 (presente), 미래 (futuro).","과거는 잊고 앞을 봐요.","gwageoneun itgo apeul bwayo.","Forget the past and look ahead.","Olvida el pasado y mira adelante."],
+["현재","hyeonjae","The present / Currently","El presente / Actualmente","The present time; also 'currently'. '현재 상황'.","El presente; también 'actualmente'. '현재 상황'.","현재 회의 중이에요.","hyeonjae hoeui jungieyo.","I'm currently in a meeting.","Actualmente estoy en una reunión."],
+["미래","mirae","The future","El futuro","The future. '미래를 준비하다' = to prepare for the future.","El futuro. '미래를 준비하다' = preparar el futuro.","미래를 위해 저축해요.","miraereul wihae jeochukaeyo.","I save for the future.","Ahorro para el futuro."],
+["동안","dongan","During / For (duration)","Durante","Means 'during/for' a period. '방학 동안' = during vacation.","Significa 'durante' un periodo. '방학 동안' = durante las vacaciones.","방학 동안 여행했어요.","banghak dongan yeohaenghaesseoyo.","I traveled during the break.","Viajé durante las vacaciones."],
+["이후","ihu","After / Since then","Después / Desde entonces","Means 'after/since'. '그 이후로' = since then. Opposite: 이전.","Significa 'después/desde'. '그 이후로' = desde entonces. Contrario: 이전.","졸업 이후에 취직했어요.","joreop ihue chwijikaesseoyo.","I got a job after graduating.","Conseguí trabajo después de graduarme."],
+["이전","ijeon","Before / Previous","Antes / Previo","Means 'before/previous'. '이전에' = previously. Opposite: 이후.","Significa 'antes/previo'. '이전에' = previamente. Contrario: 이후.","이전에 만난 적이 있어요.","ijeone mannan jeogi isseoyo.","We've met before.","Nos habíamos visto antes."],
+["드디어","deudieo","Finally / At last","Por fin","Means 'finally/at last', after long waiting.","Significa 'por fin/al fin', tras larga espera.","드디어 시험이 끝났어요.","deudieo siheomi kkeunnasseoyo.","The exams are finally over.","Por fin terminaron los exámenes."],
+["마침내","machimnae","Finally / In the end","Finalmente","Means 'finally/in the end' (more formal than 드디어).","Significa 'finalmente/al final' (más formal que 드디어).","마침내 목표를 이뤘어요.","machimnae mokpyoreul irwosseoyo.","I finally achieved my goal.","Finalmente logré mi meta."],
+["갑자기","gapjagi","Suddenly","De repente","Means 'suddenly'. '갑자기 비가 왔어요'.","Significa 'de repente'. '갑자기 비가 왔어요'.","갑자기 생각이 났어요.","gapjagi saenggagi nasseoyo.","I suddenly remembered.","De repente me acordé."],
+["점점","jeomjeom","Gradually / More and more","Cada vez más","Means 'gradually/increasingly'. '점점 추워져요'.","Significa 'gradualmente/cada vez más'. '점점 추워져요'.","날씨가 점점 추워져요.","nalssiga jeomjeom chuwojyeoyo.","It's getting colder and colder.","El tiempo se vuelve cada vez más frío."],
+["계속","gyesok","Continuously / Keep","Continuamente / Seguir","Means 'continuously/keep on'. '계속하다' = to continue.","Significa 'continuamente/seguir'. '계속하다' = continuar.","비가 계속 와요.","biga gyesok wayo.","It keeps raining.","Sigue lloviendo."],
+["자꾸","jakku","Repeatedly / Keep (annoyingly)","Una y otra vez","Means 'repeatedly', often with slight annoyance.","Significa 'una y otra vez', a veces con fastidio.","아이가 자꾸 울어요.","aiga jakku ureoyo.","The child keeps crying.","El niño no para de llorar."],
+["가끔씩","gakkeumssik","Once in a while","De vez en cuando","Means 'every now and then'. Softer than 가끔.","Significa 'de vez en cuando'. Más suave que 가끔.","가끔씩 옛 친구를 만나요.","gakkeumssik yet chingureul mannayo.","I meet old friends once in a while.","De vez en cuando veo a viejos amigos."],
+["거의","geoui","Almost / Hardly","Casi","Means 'almost'; with negatives, 'hardly'. '거의 다 했어요'.","Significa 'casi'; con negación, 'apenas'. '거의 다 했어요'.","거의 다 끝났어요.","geoui da kkeunnasseoyo.","It's almost done.","Está casi terminado."],
+["대부분","daebubun","Most / Mostly","La mayoría","Means 'most/mostly'. '대부분의 사람들'.","Significa 'la mayoría'. '대부분의 사람들'.","대부분 동의했어요.","daebubun donguihaesseoyo.","Most people agreed.","La mayoría estuvo de acuerdo."],
+["가장","gajang","The most","El más","Means 'the most' (same as 제일). For superlatives.","Significa 'el más' (igual que 제일). Para superlativos.","건강이 가장 중요해요.","geongangi gajang jungyohaeyo.","Health is the most important.","La salud es lo más importante."],
+["우선","useon","First of all / For now","Primero / Por ahora","Means 'first of all' or 'for now'. '우선 밥부터 먹어요'.","Significa 'primero' o 'por ahora'. '우선 밥부터 먹어요'.","우선 이것부터 해요.","useon igeotbuteo haeyo.","Let's do this first.","Hagamos esto primero."],
+["그동안","geudongan","Meanwhile / All this while","Mientras tanto / Todo este tiempo","Means the time span up to now, or 'meanwhile'. '그동안 어떻게 지냈어요?'","Indica el tiempo transcurrido hasta ahora, o 'mientras tanto'. '그동안 어떻게 지냈어요?'","그동안 잘 지냈어요?","geudongan jal jinaesseoyo?","Have you been well all this time?","¿Has estado bien todo este tiempo?"],
+["이미","imi","Already","Ya","Means 'already' (similar to 벌써, more neutral). '이미 끝났어요'.","Significa 'ya' (similar a 벌써, más neutro). '이미 끝났어요'.","그건 이미 알고 있어요.","geugeon imi algo isseoyo.","I already know that.","Eso ya lo sé."],
+["동시에","dongsie","At the same time","Al mismo tiempo","Means 'simultaneously'. '동시에 일어났어요'.","Significa 'simultáneamente'. '동시에 일어났어요'.","두 일이 동시에 일어났어요.","du iri dongsie ireonasseoyo.","Two things happened at the same time.","Dos cosas pasaron al mismo tiempo."],
+["순서","sunseo","Order / Sequence","Orden / Secuencia","The order/sequence. '순서대로' = in order.","El orden/secuencia. '순서대로' = en orden.","순서대로 들어오세요.","sunseodaero deureooseyo.","Please come in, in order.","Entren por orden."],
+["우선순위","useonsunwi","Priority","Prioridad","Priority/order of importance. '우선순위를 정하다'.","Prioridad/orden de importancia. '우선순위를 정하다'.","일의 우선순위를 정해요.","irui useonsunwireul jeonghaeyo.","I set priorities for tasks.","Establezco prioridades en el trabajo."],
+["반복하다","banbokada","To repeat","Repetir","To repeat. Polite: 반복해요. Noun 반복 = repetition.","Repetir. Cortés: 반복해요. 반복 = repetición.","같은 실수를 반복했어요.","gateun silsureul banbokaesseoyo.","I repeated the same mistake.","Repetí el mismo error."],
+["미루다","miruda","To postpone / put off","Posponer","To delay/postpone. Polite: 미뤄요 (mirwoyo).","Aplazar/posponer. Cortés: 미뤄요 (mirwoyo).","일을 자꾸 미루면 안 돼요.","ireul jakku mirumyeon an dwaeyo.","You shouldn't keep putting off work.","No deberías posponer el trabajo una y otra vez."],
+["서두르다","seodureuda","To hurry","Apresurarse","To hurry/rush. Polite: 서둘러요 (seodulleoyo).","Apresurarse/darse prisa. Cortés: 서둘러요.","서두르지 말고 천천히 해요.","seodureuji malgo cheoncheonhi haeyo.","Don't rush; take your time.","No te apresures; tómate tu tiempo."],
+["기간","gigan","Period / Duration","Periodo","A period of time. '시험 기간' = exam period.","Un periodo de tiempo. '시험 기간' = periodo de exámenes.","공사 기간이 길어요.","gongsa gigani gireoyo.","The construction period is long.","El periodo de obras es largo."],
+["순간","sungan","Moment / Instant","Momento / Instante","A moment/instant. '그 순간' = at that moment.","Un momento/instante. '그 순간' = en ese momento.","그 순간을 잊을 수 없어요.","geu sunganeul ijeul su eopseoyo.","I can't forget that moment.","No puedo olvidar ese momento."]
 ]
 ];
 
@@ -1283,13 +1507,13 @@ const T = {
        learnedRound:"learned this round", toReview:"to review", reviewAgain:"Review again",
        backMenu:"Back to menu", letters:"Letters", words:"Words", foot:"Tip: add to your home screen to use full-screen · Progress saves automatically on this device",
        soon:"Coming soon — content is being added step by step.", consonant:"Consonant", vowel:"Vowel", example:"Example",
-       takeQuiz:"Take the quiz", skipQuiz:"Skip", quiz:"Quiz", qMeaning:"Choose the meaning", qWord:"Choose the word", qListen:"Listen and choose", qFill:"Fill in the blank", qListenBtn:"Tap to listen", correct:"Correct!", wrong:"Not quite", score:"Score", perfect:"Perfect score!", great:"Great job!", keepGoing:"Keep practicing!", reviewWrong:"Review wrong words", retryQuiz:"Retry quiz", wrongList:"Words to review", allCorrect:"You got them all right!" },
+       takeQuiz:"Take the quiz", skipQuiz:"Skip", quiz:"Quiz", qMeaning:"Choose the meaning", qWord:"Choose the word", qListen:"Listen and choose", qFill:"Fill in the blank", qWrite:"Type the word in Korean", qListenBtn:"Tap to listen", checkBtn:"Check", typeHere:"Type here...", speak2:"Speak", stopRec:"Stop", myVoice:"My voice", recordingMsg:"Recording... tap to stop", micNo:"Recording is not available on this device.", correct:"Correct!", wrong:"Not quite", score:"Score", perfect:"Perfect score!", great:"Great job!", keepGoing:"Keep practicing!", reviewWrong:"Review wrong words", retryQuiz:"Retry quiz", wrongList:"Words to review", allCorrect:"You got them all right!" },
   es:{ back:"Atrás", listen:"Escuchar", listenWord:"Palabra", listenEx:"Frase", flip:"toca para girar",
        again:"Otra vez", known:"Lo sé", letter:"LETRA", word:"PALABRA", done:"¡Listo!",
        learnedRound:"aprendidas esta ronda", toReview:"para repasar", reviewAgain:"Repasar de nuevo",
        backMenu:"Volver al menú", letters:"Letras", words:"Palabras", foot:"Consejo: añade a tu pantalla de inicio para pantalla completa · El progreso se guarda en este dispositivo",
        soon:"Próximamente — el contenido se añade poco a poco.", consonant:"Consonante", vowel:"Vocal", example:"Ejemplo",
-       takeQuiz:"Hacer el examen", skipQuiz:"Saltar", quiz:"Examen", qMeaning:"Elige el significado", qWord:"Elige la palabra", qListen:"Escucha y elige", qFill:"Completa el espacio", qListenBtn:"Toca para escuchar", correct:"¡Correcto!", wrong:"Casi", score:"Puntuación", perfect:"¡Puntuación perfecta!", great:"¡Muy bien!", keepGoing:"¡Sigue practicando!", reviewWrong:"Repasar errores", retryQuiz:"Repetir examen", wrongList:"Palabras para repasar", allCorrect:"¡Las acertaste todas!" },
+       takeQuiz:"Hacer el examen", skipQuiz:"Saltar", quiz:"Examen", qMeaning:"Elige el significado", qWord:"Elige la palabra", qListen:"Escucha y elige", qFill:"Completa el espacio", qWrite:"Escribe la palabra en coreano", qListenBtn:"Toca para escuchar", checkBtn:"Comprobar", typeHere:"Escribe aquí...", speak2:"Hablar", stopRec:"Parar", myVoice:"Mi voz", recordingMsg:"Grabando... toca para parar", micNo:"La grabación no está disponible en este dispositivo.", correct:"¡Correcto!", wrong:"Casi", score:"Puntuación", perfect:"¡Puntuación perfecta!", great:"¡Muy bien!", keepGoing:"¡Sigue practicando!", reviewWrong:"Repasar errores", retryQuiz:"Repetir examen", wrongList:"Palabras para repasar", allCorrect:"¡Las acertaste todas!" },
 };
 
 let state = { status:{}, lang:"en" };
@@ -1318,6 +1542,42 @@ function speak(text, btn){
   if(btn){ btn.classList.add("on"); u.onend=u.onerror=()=>btn.classList.remove("on"); }
   speechSynthesis.speak(u);
 }
+
+/* ===== speaking practice (record & compare) ===== */
+let micRec=null, micChunks=[], micUrl=null, micStream=null, isRecording=false;
+function micSupported(){ return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder); }
+function resetPractice(){
+  isRecording=false;
+  if(micUrl){ try{ URL.revokeObjectURL(micUrl); }catch(e){} micUrl=null; }
+  const rb=$("recBtn"); if(rb){ rb.classList.remove("recording"); $("recLbl").textContent=L().speak2; }
+  const pm=$("playMine"); if(pm) pm.classList.add("hidden");
+  if(micRec && micRec.state!=="inactive"){ try{ micRec.stop(); }catch(e){} }
+}
+async function toggleRecord(){
+  if(!micSupported()){ const rb=$("recBtn"); rb.disabled=true; $("recLbl").textContent="—"; alert(L().micNo); return; }
+  if(isRecording){ try{ micRec.stop(); }catch(e){} return; }
+  try{
+    micStream = await navigator.mediaDevices.getUserMedia({audio:true});
+  }catch(e){ alert(L().micNo); return; }
+  micChunks=[];
+  try{ micRec = new MediaRecorder(micStream); }catch(e){ alert(L().micNo); return; }
+  micRec.ondataavailable=e=>{ if(e.data&&e.data.size>0) micChunks.push(e.data); };
+  micRec.onstop=()=>{
+    isRecording=false;
+    $("recBtn").classList.remove("recording"); $("recLbl").textContent=L().speak2;
+    if(micStream){ micStream.getTracks().forEach(t=>t.stop()); micStream=null; }
+    if(micChunks.length){
+      if(micUrl){ try{ URL.revokeObjectURL(micUrl); }catch(e){} }
+      const blob=new Blob(micChunks,{type:micChunks[0].type||"audio/webm"});
+      micUrl=URL.createObjectURL(blob);
+      $("playMine").classList.remove("hidden");
+    }
+  };
+  micRec.start();
+  isRecording=true;
+  $("recBtn").classList.add("recording"); $("recLbl").textContent=L().stopRec;
+}
+function playMyVoice(){ if(micUrl){ try{ const a=new Audio(micUrl); a.play(); }catch(e){} } }
 
 // ---- home ----
 function renderHome(){
@@ -1366,6 +1626,9 @@ function renderCard(){
   const front=$("frontFace"), back=$("backFace");
   $("fCorner").textContent=`${session.pos+1} / ${idxs.length}`;
   $("frontHint").firstChild.textContent=L().flip+" ";
+  resetPractice();
+  if(micSupported()){ $("practice").classList.remove("hidden"); $("recLbl").textContent=L().speak2; $("playLbl").textContent=L().myVoice; }
+  else { $("practice").classList.add("hidden"); }
   if(c.type==="jamo"){
     front.className="face front jamo"; back.className="face back-face jamo";
     $("frontTag").textContent=L().letter;
@@ -1435,10 +1698,10 @@ function startQuiz(mod){
   const cards=mod.cards;
   const n=Math.min(QUIZ_N, cards.length);
   const order=shuffle(cards.map((_,i)=>i)).slice(0,n);
-  const types=["meaning","word","listen","fill"];
+  const types=["meaning","word","listen","fill","write"];
   const questions=order.map((ci,qi)=>{
     const c=cards[ci];
-    let type=types[qi%4];
+    let type=types[qi%5];
     if(type==="fill" && (!c.ex || c.ex.indexOf(c.ko)<0)) type="meaning";
     return makeQuestion(mod, ci, type);
   });
@@ -1456,6 +1719,14 @@ function makeQuestion(mod, ci, type){
     return out;
   }
   let q={ type, cardIndex:ci, ko:c.ko };
+  if(type==="write"){
+    q.optKind="write";
+    q.prompt=meaningOf(c); q.promptClass="small";
+    // acceptable answers: split on "/" for entries with alternatives, strip spaces
+    q.accept = c.ko.split("/").map(s=>s.replace(/\s+/g,"").trim()).filter(Boolean);
+    q.answerText = c.ko;
+    return q;
+  }
   if(type==="word" || type==="fill"){
     const correct=c.ko;
     const opts=shuffle([correct, ...distinctVals(x=>x.ko, correct, 3)]);
@@ -1475,7 +1746,7 @@ function renderQuestion(){
   const q=quiz.questions[quiz.pos];
   $("quizProg").textContent=`${quiz.pos+1} / ${quiz.questions.length}`;
   $("quizBar").style.width=(quiz.pos/quiz.questions.length*100)+"%";
-  const typeLbl={meaning:L().qMeaning, word:L().qWord, listen:L().qListen, fill:L().qFill}[q.type];
+  const typeLbl={meaning:L().qMeaning, word:L().qWord, listen:L().qListen, fill:L().qFill, write:L().qWrite}[q.type];
   $("qType").textContent=typeLbl;
   const pe=$("qPrompt");
   if(q.type==="listen"){ pe.classList.add("hidden"); }
@@ -1484,7 +1755,17 @@ function renderQuestion(){
   if(q.audio){ lb.classList.remove("hidden"); lb.classList.toggle("big", !!q.bigListen); $("qListenLbl").textContent=q.bigListen?L().qListenBtn:L().listen; }
   else lb.classList.add("hidden");
   $("qFeedback").textContent=""; $("qFeedback").className="qfeedback";
-  const box=$("qOpts"); box.innerHTML="";
+  const box=$("qOpts"), wbox=$("qWrite"), inp=$("qInput");
+  if(q.type==="write"){
+    box.classList.add("hidden"); box.innerHTML="";
+    wbox.classList.remove("hidden");
+    inp.value=""; inp.className="qinput kr"; inp.disabled=false; inp.placeholder=L().typeHere;
+    $("qCheckBtn").textContent=L().checkBtn; $("qCheckBtn").disabled=false;
+    setTimeout(()=>{ try{ inp.focus(); }catch(e){} }, 200);
+    return;
+  }
+  wbox.classList.add("hidden"); box.classList.remove("hidden");
+  box.innerHTML="";
   q.options.forEach((opt,i)=>{
     const b=document.createElement("button"); b.className="qopt"+(q.optKind==="ko"?" kr":"");
     b.innerHTML=q.optKind==="ko"?('<span class="kr">'+opt+'</span>'):opt;
@@ -1492,6 +1773,19 @@ function renderQuestion(){
     box.appendChild(b);
   });
   if(q.audio && q.bigListen) setTimeout(()=>speak(q.audio,null),250);
+}
+function checkWritten(){
+  const q=quiz.questions[quiz.pos];
+  if(q._answered) return;
+  const inp=$("qInput");
+  const val=(inp.value||"").replace(/\s+/g,"").trim();
+  if(!val) return;
+  q._answered=true; inp.disabled=true; $("qCheckBtn").disabled=true;
+  const ok=q.accept.indexOf(val)>=0;
+  if(ok){ quiz.correct++; inp.classList.add("correct"); $("qFeedback").textContent=L().correct; $("qFeedback").className="qfeedback ok"; }
+  else { inp.classList.add("wrong"); quiz.wrong.push(q.cardIndex); state.status[keyOf(quiz.mod.cards[q.cardIndex])]="learning";
+    $("qFeedback").innerHTML=L().wrong+' &nbsp; <span class="qanswer">'+q.answerText+'</span>'; $("qFeedback").className="qfeedback no"; }
+  setTimeout(()=>{ quiz.pos++; if(quiz.pos>=quiz.questions.length) finishQuiz(); else renderQuestion(); }, ok?800:1500);
 }
 function answerQuestion(i, btn){
   const q=quiz.questions[quiz.pos];
@@ -1529,15 +1823,19 @@ function finishQuiz(){
 // ---- events ----
 $("langTog").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b)return; state.lang=b.dataset.lang; [...$("langTog").children].forEach(x=>x.classList.toggle("on",x===b)); saveState(); if(!$("study").classList.contains("hidden")) renderCard(); else if(!$("done").classList.contains("hidden")) finish(); renderHome(); });
 $("levSeg").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b)return; curLev=b.dataset.lev; [...$("levSeg").children].forEach(x=>x.classList.toggle("on",x===b)); renderHome(); });
-$("backBtn").addEventListener("click",()=>{ renderHome(); show("home"); });
+$("backBtn").addEventListener("click",()=>{ resetPractice(); renderHome(); show("home"); });
 $("flash").addEventListener("click",flip);
 $("spk1").addEventListener("click",e=>{ e.stopPropagation(); const c=curCard(); speak(c.type==="jamo"?c.audio:c.ko, $("spk1")); });
+$("recBtn").addEventListener("click",e=>{ e.stopPropagation(); toggleRecord(); });
+$("playMine").addEventListener("click",e=>{ e.stopPropagation(); playMyVoice(); });
 $("btnAgain").addEventListener("click",()=>mark("learning"));
 $("btnKnown").addEventListener("click",()=>mark("known"));
 $("doneReview").addEventListener("click",()=>startModule(session.mod,true));
 $("doneHome").addEventListener("click",()=>{ renderHome(); show("home"); });
 $("doneQuiz").addEventListener("click",()=>{ if($("doneQuiz")._mod) startQuiz($("doneQuiz")._mod); });
 $("qListenBtn").addEventListener("click",()=>{ const q=quiz&&quiz.questions[quiz.pos]; if(q&&q.audio) speak(q.audio,$("qListenBtn")); });
+$("qCheckBtn").addEventListener("click",checkWritten);
+$("qInput").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); checkWritten(); } });
 $("quizBack").addEventListener("click",()=>{ renderHome(); show("home"); });
 $("qHome").addEventListener("click",()=>{ renderHome(); show("home"); });
 $("qRetry").addEventListener("click",()=>{ if(quiz&&quiz.mod) startQuiz(quiz.mod); });
